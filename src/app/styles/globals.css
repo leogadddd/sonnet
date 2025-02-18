@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-accent: #f56f10;
+  --color-light: rgb(251, 251, 251);
+  --color-dark-accent-3: #878787;
+  --color-dark-accent-2: #262626;
+  --color-dark-accent: #1b1a1f;
+  --color-dark: #151419;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-accent: #f56f10;
+    --color-light: rgb(251, 251, 251);
+    --color-dark-accent-3: #878787;
+    --color-dark-accent-2: #262626;
+    --color-dark-accent: #1b1a1f;
+    --color-dark: #151419;
+  }
+}
+
+body {
+  color: var(--color-light);
+  background: var(--color-dark);
+  font-family: Arial, Helvetica, sans-serif;
+}
