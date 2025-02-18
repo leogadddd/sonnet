@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "@/styles/globals.css";
+import "@/styles/prosemirror.css";
+import SideBarComponent from "@/components/sidebar/sidebar.component";
 
 const globalFont = Poppins({
   display: "swap",
@@ -22,7 +24,10 @@ export default function RootLayout({
       <body
         className={`${globalFont.className} bg-[--color-dark] text-white antialiased`}
       >
-        {children}
+        <div className="flex h-max">
+          <SideBarComponent></SideBarComponent>
+          <div className="flex-1">{children}</div>
+        </div>
       </body>
     </html>
   );
