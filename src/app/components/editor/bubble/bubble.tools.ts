@@ -13,82 +13,95 @@ import {
   Heading3,
   PaintBucket,
 } from "lucide-react";
+import { EditorInstance } from "novel";
 
 export const bubbleTools = [
   {
     name: "bold",
     icon: Bold,
-    command: (editor: any) => editor.chain().focus().toggleBold().run(),
-    isActive: (editor: any) => editor.isActive("bold"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleBold().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("bold"),
   },
   {
     name: "italic",
     icon: Italic,
-    command: (editor: any) => editor.chain().focus().toggleItalic().run(),
-    isActive: (editor: any) => editor.isActive("italic"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleItalic().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("italic"),
   },
   {
     name: "underline",
     icon: Underline,
-    command: (editor: any) => editor.chain().focus().toggleUnderline().run(),
-    isActive: (editor: any) => editor.isActive("underline"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleUnderline().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("underline"),
   },
   {
     name: "strikethrough",
     icon: Strikethrough,
-    command: (editor: any) => editor.chain().focus().toggleStrike().run(),
-    isActive: (editor: any) => editor.isActive("strike"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleStrike().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("strike"),
   },
   {
     name: "code",
     icon: Code,
-    command: (editor: any) => editor.chain().focus().toggleCode().run(),
-    isActive: (editor: any) => editor.isActive("code"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleCode().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("code"),
   },
   {
     name: "highlight",
     icon: Highlighter,
-    command: (editor: any) => editor.chain().focus().toggleHighlight().run(),
-    isActive: (editor: any) => editor.isActive("highlight"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleHighlight().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("highlight"),
   },
   {
     name: "heading 1",
     icon: Heading1,
-    command: (editor: any) =>
+    command: (editor: EditorInstance) =>
       editor.chain().focus().toggleHeading({ level: 1 }).run(),
-    isActive: (editor: any) => editor.isActive("heading", { level: 1 }),
+    isActive: (editor: EditorInstance) =>
+      editor.isActive("heading", { level: 1 }),
   },
   {
     name: "heading 2",
     icon: Heading2,
-    command: (editor: any) =>
+    command: (editor: EditorInstance) =>
       editor.chain().focus().toggleHeading({ level: 2 }).run(),
-    isActive: (editor: any) => editor.isActive("heading", { level: 2 }),
+    isActive: (editor: EditorInstance) =>
+      editor.isActive("heading", { level: 2 }),
   },
   {
     name: "heading 3",
     icon: Heading3,
-    command: (editor: any) =>
+    command: (editor: EditorInstance) =>
       editor.chain().focus().toggleHeading({ level: 3 }).run(),
-    isActive: (editor: any) => editor.isActive("heading", { level: 3 }),
+    isActive: (editor: EditorInstance) =>
+      editor.isActive("heading", { level: 3 }),
   },
   {
     name: "blockquote",
     icon: Quote,
-    command: (editor: any) => editor.chain().focus().toggleBlockquote().run(),
-    isActive: (editor: any) => editor.isActive("blockquote"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleBlockquote().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("blockquote"),
   },
   {
     name: "bullet list",
     icon: List,
-    command: (editor: any) => editor.chain().focus().toggleBulletList().run(),
-    isActive: (editor: any) => editor.isActive("bulletList"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleBulletList().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("bulletList"),
   },
   {
     name: "ordered list",
     icon: ListOrdered,
-    command: (editor: any) => editor.chain().focus().toggleOrderedList().run(),
-    isActive: (editor: any) => editor.isActive("orderedList"),
+    command: (editor: EditorInstance) =>
+      editor.chain().focus().toggleOrderedList().run(),
+    isActive: (editor: EditorInstance) => editor.isActive("orderedList"),
   },
   {
     name: "text color",

@@ -2,14 +2,12 @@
 
 import React, { ReactNode, useRef, useState, useEffect } from "react";
 import * as motion from "motion/react-client";
-import { useRouter } from "next/navigation";
 
 interface sidebarcomponent {
   children?: ReactNode;
 }
 
 const SideBarComponent = ({ children }: sidebarcomponent) => {
-  const router = useRouter();
   const [width, setWidth] = useState(224);
   const isResizingRef = useRef(false);
   const lastWidthRef = useRef(width);
@@ -23,6 +21,7 @@ const SideBarComponent = ({ children }: sidebarcomponent) => {
     }
   }, [width]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMouseDown = (e: any) => {
     e.preventDefault();
     isResizingRef.current = true;
@@ -32,6 +31,7 @@ const SideBarComponent = ({ children }: sidebarcomponent) => {
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMouseMove = (e: any) => {
     if (!isResizingRef.current) return;
     e.preventDefault();

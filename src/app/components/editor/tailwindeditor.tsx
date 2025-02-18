@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import {
-  EditorBubble,
-  EditorBubbleItem,
   EditorCommand,
   EditorCommandEmpty,
   EditorCommandItem,
@@ -18,8 +16,7 @@ import {
   handleImageDrop,
   handleImagePaste,
 } from "novel";
-import { generateHTML, generateJSON } from "@tiptap/html";
-import hljs from "highlight.js";
+import { generateJSON } from "@tiptap/html";
 import { defaultExtensions } from "@/components/editor/extensions";
 import { uploadFn } from "@/components/editor/image.upload";
 import {
@@ -32,7 +29,6 @@ import { NodeSelector } from "@/components/editor/selectors/node.selector";
 import { LinkSelector } from "@/components/editor/selectors/link.selector";
 import { TextButtons } from "@/components/editor/selectors/text.buttons";
 import { ColorSelector } from "@/components/editor/selectors/color.selector";
-import ReactJson from "react-json-view"; // Install with `npm install react-json-view`
 
 interface TailwindAdvancedEditorProps {
   context?: {
@@ -51,6 +47,7 @@ const TailwindAdvancedEditor: React.FC<TailwindAdvancedEditorProps> = ({
   debounceDelay = 500,
 }) => {
   const { setEditor, setSaveState, setCharCount, content } = context;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [initialContent, setInitialContent] = useState<JSONContent | undefined>(
     content
       ? generateJSON(content, [...defaultExtensions, slashCommand])
