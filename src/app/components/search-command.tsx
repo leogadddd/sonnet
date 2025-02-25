@@ -43,6 +43,7 @@ export const SearchCommand = () => {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSelect = (id: string) => {

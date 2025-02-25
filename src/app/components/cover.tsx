@@ -61,6 +61,7 @@ export const Cover = ({ url, preview }: CoverImageProps) => {
   );
 };
 
+// eslint-disable-next-line react/display-name
 Cover.Skeleton = () => {
   return <Skeleton className="relative w-full h-[12vh] group" />;
 };

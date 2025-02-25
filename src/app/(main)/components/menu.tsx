@@ -7,11 +7,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/clerk-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
@@ -25,7 +23,6 @@ interface MenuProps {
 
 const Menu = ({ initialData }: MenuProps) => {
   const router = useRouter();
-  const { user } = useUser();
 
   const archive = useMutation(api.documents.archive);
 
@@ -55,14 +52,22 @@ const Menu = ({ initialData }: MenuProps) => {
         forceMount
       >
         <DropdownMenuItem className="cursor-pointer text-muted-foreground text-xs p-2 hover:bg-primary/5 hover:text-white flex items-center font-medium">
-          <Trash className="h-4 w-4" />
-          Delete
+          <Button
+            variant={"ghost"}
+            size={"sm"}
+            className="flex items-center justify-between w-full"
+            onClick={onArchive}
+          >
+            <Trash className="h-4 w-4" />
+            Delete
+          </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
+// eslint-disable-next-line react/display-name
 Menu.Skeleton = () => {
   return <Skeleton className="h-8 w-8" />;
 };

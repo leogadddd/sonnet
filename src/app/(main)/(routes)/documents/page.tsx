@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { useUser } from "@clerk/clerk-react";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "convex/react";
@@ -10,7 +9,6 @@ import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 
 const DocumentsPage = () => {
-  const { user } = useUser();
   const create = useMutation(api.documents.create);
 
   const onCreate = () => {
@@ -44,7 +42,7 @@ const DocumentsPage = () => {
 
       <h2 className="font-bold text-3xl uppercase">NO BLOG YET!</h2>
       <p className="text-center">
-        It looks like there's nothing here... yet.
+        It looks like there&apos;`s nothing here... yet.
         <br /> Start fresh by adding your first blog below.
       </p>
       <Button onClick={onCreate}>

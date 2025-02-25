@@ -24,6 +24,7 @@ export const SettingsModal = () => {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -9,11 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { useUser } from "@clerk/clerk-react";
-import {
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { useMutation } from "convex/react";
 import {
   ChevronDown,
@@ -55,7 +51,6 @@ const Item = ({
   expanded,
   isSettings,
 }: ItemProps) => {
-  const { user } = useUser();
   const router = useRouter();
   const create = useMutation(api.documents.create);
   const archive = useMutation(api.documents.archive);
@@ -89,7 +84,7 @@ const Item = ({
         if (!expanded) {
           onExpand?.();
         }
-        // router.push(`/documents/${documentId}`);
+        router.push(`/documents/${documentId}`);
       }
     );
 

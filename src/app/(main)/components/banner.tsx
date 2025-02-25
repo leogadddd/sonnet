@@ -4,7 +4,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import React from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/modals/confirm-modal";

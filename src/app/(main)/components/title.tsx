@@ -77,6 +77,7 @@ export const Title = ({ initialData }: TitleProps) => {
   );
 };
 
+// eslint-disable-next-line react/display-name
 Title.Skeleton = () => {
   return <Skeleton className="ml-2 h-7 w-20 rounded-md" />;
 };
