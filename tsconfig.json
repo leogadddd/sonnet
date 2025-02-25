@@ -27,7 +27,8 @@
         "./src/app/(main)/components/*"
       ],
       "@/lib/*": ["./src/lib/*"],
-      "@/hooks/*": ["./hooks/*"]
+      "@/hooks/*": ["./hooks/*"],
+      "@/convex/*": ["./convex/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
