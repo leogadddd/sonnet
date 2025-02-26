@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         hostname: "files.edgestore.dev",
+        protocol: "https",
+      },
+      {
+        hostname: "npx-editor.vercel.app",
+        protocol: "https",
       },
     ],
   },
