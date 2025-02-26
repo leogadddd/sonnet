@@ -32,27 +32,27 @@ export const Heading = () => {
         </span>{" "}
         — effortlessly.
       </h3>
-      {isLoading && (
-        <div className="w-full flex items-center justify-center">
-          <Spinner size={"lg"} />
-        </div>
-      )}
-      {isAuthenticated && !isLoading && (
-        <Button asChild>
-          <Link href="/documents">
-            Start Writing with Sonnet
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Link>
+      <div className="flex items-center justify-center gap-x-4">
+        <Button asChild size={"lg"} variant={"ghost"}>
+          <Link href="/explore">Explore</Link>
         </Button>
-      )}
-      {!isAuthenticated && !isLoading && (
-        <SignInButton mode="modal">
-          <Button>
-            Get Sonnet Free
-            <ArrowRight className="h-4 w-4 ml-1" />
+        {isAuthenticated && !isLoading && (
+          <Button asChild size={"lg"}>
+            <Link href="/documents">
+              Start Writing
+              <ArrowRight className="h-4 w-4 ml-1" />
+            </Link>
           </Button>
-        </SignInButton>
-      )}
+        )}
+        {!isAuthenticated && (
+          <SignInButton mode="modal">
+            <Button size={"lg"}>
+              Get Started
+              <ArrowRight className="h-4 w-4 ml-1" />
+            </Button>
+          </SignInButton>
+        )}
+      </div>
     </div>
   );
 };
