@@ -85,8 +85,8 @@ body,
   }
 }
 
-.logo-text {
-  background: linear-gradient(90deg, var(--chart-1), var(--chart-5));
+.logo-text-gradient {
+  background: linear-gradient(90deg, #ff3131, #ff914d);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

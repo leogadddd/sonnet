@@ -27,7 +27,7 @@ export const Heading = () => {
       <h3 className="text-base sm:text-xl md:text-2xl font-medium">
         Transform your thoughts into beautifully structured notes and <br />{" "}
         documents with{" "}
-        <span className={cn("font-bold logo-text", font.className)}>
+        <span className={cn("font-bold logo-text-gradient", font.className)}>
           Sonnet
         </span>{" "}
         — effortlessly.

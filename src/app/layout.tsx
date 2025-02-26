@@ -15,7 +15,11 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Sonnet – Where Ideas Flow Like Poetry",
+  title: `Sonnet ${
+    process.env.NODE_ENV === "production"
+      ? "– Where Ideas Flow Like Poetry"
+      : "- Development"
+  }`,
   description:
     "Sonnet is a sleek and powerful MDX editor designed for seamless note-taking, documentation, and creative writing. Elevate your ideas with structured markdown and dynamic components—all in a beautifully minimal workspace",
 };

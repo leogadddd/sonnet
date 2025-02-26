@@ -7,10 +7,6 @@ const nextConfig: NextConfig = {
         hostname: "files.edgestore.dev",
         protocol: "https",
       },
-      {
-        hostname: "sonnet.leogadil.com",
-        protocol: "https",
-      },
     ],
   },
   crossOrigin: "anonymous",
