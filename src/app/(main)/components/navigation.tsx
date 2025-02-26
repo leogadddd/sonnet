@@ -28,8 +28,10 @@ import { TrashBox } from "@/components/trash-box";
 import { useSearch } from "@/hooks/use-search";
 import { useSettings } from "@/hooks/use-settings";
 import { Navbar } from "@/components/navbar-main";
+import { useRouter } from "next/navigation";
 
 export const Navigation = () => {
+  const router = useRouter();
   const settings = useSettings();
   const search = useSearch();
   const params = useParams();
@@ -123,6 +125,8 @@ export const Navigation = () => {
   const handleCreate = () => {
     const promise = create({
       title: "New Blog",
+    }).then((documentId) => {
+      router.push(`/documents/${documentId}`);
     });
 
     toast.promise(promise, {

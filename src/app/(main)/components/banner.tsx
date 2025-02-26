@@ -20,14 +20,13 @@ const Banner = ({ documentId }: BannerProps) => {
 
   const onRemove = () => {
     const promise = remove({ id: documentId });
+    router.push("/documents");
 
     toast.promise(promise, {
       loading: "Deleting blog...",
       success: "Blog deleted",
       error: "Failed to delete blog",
     });
-
-    router.push("/documents");
   };
 
   const onRestore = () => {

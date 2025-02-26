@@ -1,3 +1,15 @@
+/* Base theme */
+.bn-container[data-theming-css-variables][data-color-scheme] {
+  --bn-colors-editor-text: var(--text-mu);
+  --bn-colors-editor-background: var(--background);
+}
+
+/* Dark mode */
+.bn-container[data-theming-css-variables][data-color-scheme="dark"] {
+  --bn-colors-editor-text: var(--foreground);
+  --bn-colors-editor-background: var(--background);
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -66,7 +78,7 @@ body,
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
@@ -74,20 +86,9 @@ body,
 }
 
 .logo-text {
-  background: linear-gradient(90deg, #ff3131, #ff914d);
+  background: linear-gradient(90deg, var(--chart-1), var(--chart-5));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
-}
-
-
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }

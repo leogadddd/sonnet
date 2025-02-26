@@ -8,7 +8,7 @@ import { MenuIcon } from "lucide-react";
 import { Title } from "@/components/title";
 import Banner from "@/components/banner";
 import Menu from "@/components/menu";
-
+import { Publish } from "@/components/publish";
 interface NavbarProps {
   isCollapsed: boolean;
   onResetWidth: () => void;
@@ -38,16 +38,17 @@ export const Navbar = ({ isCollapsed, onResetWidth }: NavbarProps) => {
   return (
     <>
       <nav className="bg-background dark:bg-[#1d1c1c] px-3 py-2 w-full flex items-center gap-x-4">
-        {isCollapsed && (
-          <MenuIcon
-            role="button"
-            onClick={onResetWidth}
-            className="h-6 w-6 text-muted-foreground"
-          />
-        )}
         <div className="flex items-center justify-between w-full">
+          {isCollapsed && (
+            <MenuIcon
+              role="button"
+              onClick={onResetWidth}
+              className="h-6 w-6 text-muted-foreground"
+            />
+          )}
           <Title initialData={document} />
           <div className="flex items-center gap-x-2">
+            <Publish initialData={document} />
             <Menu initialData={document._id} />
           </div>
         </div>
