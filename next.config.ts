@@ -8,11 +8,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
       },
       {
-        hostname: "npx-editor.vercel.app",
+        hostname: "sonnet.leogadil.com",
         protocol: "https",
       },
     ],
   },
+  crossOrigin: "anonymous",
 };
 
 export default nextConfig;
