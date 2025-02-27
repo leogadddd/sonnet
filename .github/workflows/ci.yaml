@@ -12,7 +12,7 @@ jobs:
 
       - name: Copy .env.example files
         shell: bash
-        run: find . -type -f -name ".env.example" -exec sh -c 'cp {} $(dirname {})/.env' \;
+        run: find . -type f -name ".env.example" -exec sh -c 'cp {} $(dirname {})/.env' \;
 
       - name: Typecheck
         run: yarn typecheck
