@@ -1,0 +1,21 @@
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install -g yarn && yarn add
+
+      - name: Copy .env.example files
+        shell: bash
+        run: find . -type -f -name ".env.example" -exec sh -c 'cp {} $(dirname {})/.env' \;
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Lint
+        run: yarn lint
