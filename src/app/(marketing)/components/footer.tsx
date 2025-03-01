@@ -1,12 +1,12 @@
 import React from "react";
-import { Logo } from "./logo";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
+import SonnetFooter from "@/components/sonnet-footer";
 
 const Footer = () => {
   return (
-    <div className="flex items-center w-full p-6 bg-background z-50">
-      <Logo />
-      <div className="md:ml w-full justify-between md:justify-end flex items-center gap-x-2 text-muted-foreground">
+    <div className="flex items-center gap-x-8 w-full p-6 bg-background z-50">
+      <SonnetFooter />
+      <div className="md:ml justify-end flex items-center gap-x-2 text-muted-foreground">
         <Button variant="ghost" size="sm">
           Privacy Policy
         </Button>

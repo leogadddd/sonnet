@@ -8,12 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 interface TitleProps {
-  initialData: Doc<"documents">;
+  initialData: Doc<"blogs">;
 }
 
 export const Title = ({ initialData }: TitleProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const update = useMutation(api.documents.update);
+  const update = useMutation(api.blogs.update);
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -52,10 +52,10 @@ export const Title = ({ initialData }: TitleProps) => {
 
   return (
     <div className="flex items-center gap-x-1">
-      {!!initialData.icon && <p className="text-3xl">{initialData.icon}</p>}
+      {!!initialData.contentData.icon && <p className="text-xl mb-1">{initialData.contentData.icon}</p>}
       {isEditing ? (
         <Input
-          className="h-7 px-2 focus-visible:ring-0 text-lg"
+          className="h-9 px-2 focus-visible:ring-0 text-lg"
           ref={inputRef}
           onClick={enableInput}
           onKeyDown={onKeyDown}
@@ -68,9 +68,11 @@ export const Title = ({ initialData }: TitleProps) => {
           onClick={enableInput}
           variant="ghost"
           size="sm"
-          className="text-lg p-1 h-7 px-2 font-bold"
+          className="text-lg p-1 h-9 px-2 font-bold"
         >
-          <span className="truncate">{initialData.title}</span>
+          <span className="truncate text-[#2c2c2c] dark:text-[#dbdbdb]">
+            {initialData.title}
+          </span>
         </Button>
       )}
     </div>

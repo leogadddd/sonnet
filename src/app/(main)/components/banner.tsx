@@ -10,17 +10,17 @@ import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/modals/confirm-modal";
 
 interface BannerProps {
-  documentId: Id<"documents">;
+  blogId: Id<"blogs">;
 }
 
-const Banner = ({ documentId }: BannerProps) => {
+const Banner = ({ blogId }: BannerProps) => {
   const router = useRouter();
-  const remove = useMutation(api.documents.remove);
-  const restore = useMutation(api.documents.restore);
+  const remove = useMutation(api.blogs.remove);
+  const restore = useMutation(api.blogs.restore);
 
   const onRemove = () => {
-    const promise = remove({ id: documentId });
-    router.push("/documents");
+    router.push("/dashboard");
+    const promise = remove({ id: blogId });
 
     toast.promise(promise, {
       loading: "Deleting blog...",
@@ -30,7 +30,7 @@ const Banner = ({ documentId }: BannerProps) => {
   };
 
   const onRestore = () => {
-    const promise = restore({ id: documentId });
+    const promise = restore({ id: blogId });
 
     toast.promise(promise, {
       loading: "Restoring blog...",
@@ -39,8 +39,12 @@ const Banner = ({ documentId }: BannerProps) => {
     });
   };
 
+  if (blogId === null) {
+    return null;
+  }
+
   return (
-    <div className="flex items-center gap-x-2 bg-rose-500 dark:bg-rose-700 text-primary p-3 py-2 text-sm">
+    <div className="w-full flex items-center gap-x-2 bg-rose-500 dark:bg-rose-700 text-primary p-3 py-2 text-sm">
       <p className="truncate font-medium text-base text-white">
         This blog is in the trash
       </p>
