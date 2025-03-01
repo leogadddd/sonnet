@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -29,10 +30,10 @@ export const SettingsModal = () => {
 
   return (
     <Dialog open={settings.isOpen} onOpenChange={settings.onClose}>
-      <DialogContent>
+      <DialogContent className="bg-background dark:bg-[#181717] drop-shadow-lg rounded-lg">
         <DialogHeader className="border-b pb-3">
           <DialogTitle className="text-lg font-medium">Settings</DialogTitle>
-          {/* <DialogDescription>Make changes to your settings.</DialogDescription> */}
+          <DialogDescription>Add a cover image to your blog.</DialogDescription>
         </DialogHeader>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-y-1">

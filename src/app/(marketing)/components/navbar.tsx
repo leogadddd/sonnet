@@ -6,11 +6,19 @@ import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/mode-toggle";
 
 import { Logo } from "@/components/logo";
-import { SignInButton, UserButton } from "@clerk/clerk-react";
+import { SignInButton } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import UserItem from "@/app/(marketing)/components/user-item-marketing";
 import { useTheme } from "next-themes";
+import { ChevronRight, Menu } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/app/components/ui/dropdown-menu";
+import { dark } from "@clerk/themes";
+
 export const Navbar = () => {
   const { theme } = useTheme();
   const { isAuthenticated, isLoading } = useConvexAuth();
@@ -19,47 +27,91 @@ export const Navbar = () => {
   return (
     <div
       className={cn(
-        "z-50 bg-background fixed top-0 flex items-center justify-evenly w-full p-6",
-        scrolled && "border-b shadow-sm"
+        "z-50 bg-background flex items-center justify-evenly p-6 w-full",
+        scrolled && "shadow-sm"
       )}
     >
-      <div className="flex-1 flex justify-start">
+      <div className="flex justify-start flex-1 md:flex-none">
         <Logo />
       </div>
 
       {/* Centered navigation links */}
-      <div className="md:flex hidden flex-1 justify-center space-x-8">
-        <Link
-          className="text-muted-foreground hover:text-primary text-sm"
-          href="/blogs"
-        >
-          Explore
-        </Link>
-        <Link
-          className="text-muted-foreground hover:text-primary text-sm"
-          href="/pricing"
-        >
-          Pricing
-        </Link>
+      <div className="flex-1 md:flex hidden justify-end space-x-4 pr-6 text-muted-foreground">
+        <Button variant="ghost" size="sm" asChild className="h-9">
+          <Link href="/explore">Explore</Link>
+        </Button>
+        <Button variant="ghost" size="sm" asChild className="h-9">
+          <Link href="/pricing">Pricing</Link>
+        </Button>
       </div>
 
       {/* Right-aligned controls */}
-      <div className="flex-1 flex justify-end items-center gap-x-3">
+      <div className="flex justify-end items-center gap-x-3">
         {!isAuthenticated && !isLoading && (
-          <SignInButton mode="modal">
-            <Button variant={"ghost"} size={"sm"} className="rounded-lg">
+          <SignInButton
+            mode="modal"
+            appearance={{
+              baseTheme: theme === "dark" ? dark : undefined,
+            }}
+          >
+            <Button variant={"ghost"} size={"sm"} className="rounded-lg h-9">
               Log In
             </Button>
           </SignInButton>
         )}
         {isAuthenticated && !isLoading && (
           <Button size={"sm"} className="rounded-lg" asChild>
-            <Link href="/documents">Dashboard</Link>
+            <Link href="/dashboard">Dashboard</Link>
           </Button>
         )}
         {!isAuthenticated && <ModeToggle />}
+        <Navbar.MobileMenu />
         {isAuthenticated && !isLoading && <UserItem />}
       </div>
     </div>
+  );
+};
+
+Navbar.MobileMenu = () => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-lg flex md:hidden"
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-60 mt-2 rounded-xl"
+        align="end"
+        forceMount
+      >
+        <div className="flex flex-col gap-y-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="rounded-lg justify-start"
+          >
+            <Link href="/explore" className="flex justify-between">
+              Explore <ChevronRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="rounded-lg justify-start"
+          >
+            <Link href="/pricing" className="flex justify-between">
+              Pricing <ChevronRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

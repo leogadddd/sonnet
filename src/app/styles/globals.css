@@ -1,12 +1,12 @@
 /* Base theme */
 .bn-container[data-theming-css-variables][data-color-scheme] {
-  --bn-colors-editor-text: var(--text-muted-foreground);
+  --bn-colors-editor-text: #3f3f3f;
   --bn-colors-editor-background: var(--background);
 }
 
 /* Dark mode */
 .bn-container[data-theming-css-variables][data-color-scheme="dark"] {
-  --bn-colors-editor-text: var(--foreground);
+  --bn-colors-editor-text: #cfcfcf;
   --bn-colors-editor-background: var(--background);
 }
 
@@ -97,4 +97,18 @@ body,
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+/* Ensure Clerk modals are always on top */
+.cl-modalBackdrop {
+  z-index: 100090 !important;
+}
+
+/* Example: Adjust the Clerk card (sign-in/sign-up form) */
+/* but only if modelCOntent div has a child with a class of cl-signUp-root or cl-signIn-root */
+.cl-modalContent {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }

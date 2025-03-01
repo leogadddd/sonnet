@@ -14,17 +14,21 @@ import { useMutation } from "convex/react";
 import {
   ChevronDown,
   ChevronRight,
+  Globe,
   LucideIcon,
   MoreHorizontal,
   Plus,
+  Share,
   Trash,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { toast } from "sonner";
+import { memo } from "react";
+import { usePublish } from "@/hooks/use-publish";
 
 interface ItemProps {
-  id?: Id<"documents">;
+  id?: Id<"blogs">;
   documentIcon?: string;
   active?: boolean;
   expanded?: boolean;
@@ -52,52 +56,71 @@ const Item = ({
   isSettings,
 }: ItemProps) => {
   const router = useRouter();
-  const create = useMutation(api.documents.create);
-  const archive = useMutation(api.documents.archive);
+  const create = useMutation(api.blogs.create);
+  const archive = useMutation(api.blogs.archive);
+  const publish = usePublish();
 
-  const onArchive = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    event.stopPropagation();
-    if (!id) return;
 
-    const promise = archive({ id }).then(() => {
-      router.push("/documents");
-    });
+  const onArchive = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      event.stopPropagation();
+      if (!id) return;
 
-    toast.promise(promise, {
-      loading: "Moving to trash...",
-      success: "Blog moved to trash!",
-      error: "Failed to archive blog.",
-    });
-  };
+      router.push("/dashboard");
+      const promise = archive({ id });
 
-  const handleExpand = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
-    event.stopPropagation();
-    onExpand?.();
-  };
+      toast.promise(promise, {
+        loading: "Moving to trash...",
+        success: "Blog moved to trash!",
+        error: "Failed to archive blog.",
+      });
+    },
+    [archive, id, router]
+  );
 
-  const onCreate = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    event.stopPropagation();
-    if (!id) return;
+  const handleExpand = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      event.stopPropagation();
+      onExpand?.();
+    },
+    [onExpand]
+  );
 
-    const promise = create({ title: "New Page", parentDocument: id }).then(
-      (documentId) => {
-        if (!expanded) {
-          onExpand?.();
+  const onCreate = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      event.stopPropagation();
+      if (!id) return;
+
+      const promise = create({ title: "New Page", parentBlog: id }).then(
+        (documentId) => {
+          if (!expanded) {
+            onExpand?.();
+          }
+          router.push(`/dashboard/${documentId}`);
         }
-        router.push(`/documents/${documentId}`);
-      }
-    );
+      );
 
-    toast.promise(promise, {
-      loading: "Creating a new page...",
-      success: "New page created!",
-      error: "Failed to create a new page.",
-    });
-  };
+      toast.promise(promise, {
+        loading: "Creating a new page...",
+        success: "New page created!",
+        error: "Failed to create a new page.",
+      });
+    },
+    [create, expanded, id, onExpand, router]
+  );
+
+  const onPublish = useCallback(() => {
+    publish.onOpen();
+  }, [publish]);
+
 
   const ChevronIcon = expanded ? ChevronDown : ChevronRight;
+
+  // Memoize the context menu component
+  const contextMenu = useMemo(
+    () => <Item.ContextMenu onArchive={onArchive} onPublish={onPublish} label={label} />,
+    [onArchive, label, onPublish]
+  );
 
   return (
     <div
@@ -123,44 +146,20 @@ const Item = ({
       ) : (
         <Icon className="shrink-0 h-[18px] mr-2 text-muted-foreground" />
       )}
-      <span className="truncate">{label}</span>
+      <span className={cn("truncate", active && "font-bold")}>{label}</span>
       {isSearch && (
-        <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+        <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-primary/5 px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
           <span className="text-xs">⌘</span>K
         </kbd>
       )}
       {isSettings && (
-        <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+        <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-primary/5 px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
           <span className="text-xs">⌘</span>/
         </kbd>
       )}
       {!!id && (
         <div className="ml-auto flex items-center gap-x-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger onClick={(e) => e.stopPropagation()} asChild>
-              <div
-                role="button"
-                className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
-              >
-                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="w-60"
-              align="start"
-              side="right"
-              forceMount
-            >
-              <DropdownMenuItem onClick={onArchive} className="cursor-pointer">
-                <Trash className="h-4 w-4 mr-2" />
-                Delete
-              </DropdownMenuItem>
-              {/* <DropdownMenuSeparator />
-              <div className="text-xs text-muted-foreground p-2">
-                Last Edited by: {user?.fullName}
-              </div> */}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {contextMenu}
           <div
             role="button"
             onClick={onCreate}
@@ -173,6 +172,55 @@ const Item = ({
     </div>
   );
 };
+
+Item.ContextMenu = memo(function ItemContextMenu({
+  onArchive,
+  onPublish,
+  label,
+}: {
+  onArchive: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onPublish: () => void;
+  label: string;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger onClick={(e) => e.stopPropagation()} asChild>
+        <div
+          role="button"
+          className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+        >
+          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="p-1 w-60 ml-10 bg-background dark:bg-[#181717] drop-shadow-md rounded-xl"
+        align="start"
+        side="right"
+        alignOffset={-12}
+        forceMount
+      >
+        <DropdownMenuItem
+          className="cursor-pointer rounded-lg "
+          onClick={onPublish}
+        >
+          <Share className="h-4 w-4 mr-2 " />
+          Share <span className="truncate">"{label}"</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={onArchive}
+          className="cursor-pointer rounded-lg text-red-500 focus:text-red-400 pr-4"
+        >
+          <Trash className="h-4 w-4 mr-2 " />
+          Delete <span className="truncate">"{label}"</span>
+        </DropdownMenuItem>
+        {/* <DropdownMenuSeparator />
+              <div className="text-xs text-muted-foreground p-2">
+                Last Edited by: {user?.fullName}
+              </div> */}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+});
 
 Item.Skeleton = function ItemSekeleton({ level }: { level?: number }) {
   return (

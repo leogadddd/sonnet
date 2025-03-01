@@ -17,7 +17,7 @@ import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 export const CoverImageModal = () => {
   const params = useParams();
-  const update = useMutation(api.documents.update);
+  const update = useMutation(api.blogs.update);
   const [file, setFile] = useState<File>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const coverImage = useCoverImage();
@@ -42,7 +42,7 @@ export const CoverImageModal = () => {
       });
 
       await update({
-        id: params.documentId as Id<"documents">,
+        id: params.blogId as Id<"blogs">,
         coverImage: res.url,
       });
 
@@ -52,14 +52,11 @@ export const CoverImageModal = () => {
 
   return (
     <Dialog open={coverImage.isOpen} onOpenChange={coverImage.onClose}>
-      <DialogHeader className="hidden">
+      <DialogContent className="bg-background dark:bg-[#181717] drop-shadow-lg rounded-lg">
+      <DialogHeader className="border-b pb-3">
         <DialogTitle>Cover Image</DialogTitle>
         <DialogDescription>Add a cover image to your blog.</DialogDescription>
       </DialogHeader>
-      <DialogContent>
-        <DialogHeader>
-          <h2 className="text-center text-lg font-semibold">Cover Image</h2>
-        </DialogHeader>
         <SingleImageDropzone
           className="w-full "
           value={file}

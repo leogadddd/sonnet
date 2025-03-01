@@ -18,17 +18,17 @@ interface CoverImageProps {
 
 export const Cover = ({ url, preview }: CoverImageProps) => {
   const coverImage = useCoverImage();
-  const removeCoverImage = useMutation(api.documents.removeCoverImage);
+  const removeCoverImage = useMutation(api.blogs.removeCoverImage);
   const params = useParams();
 
   const onRemove = () => {
-    removeCoverImage({ id: params.documentId as Id<"documents"> });
+    removeCoverImage({ id: params.blogId as Id<"blogs"> });
   };
 
   return (
     <div
       className={cn(
-        "relative w-full h-[35vh] group",
+        "relative w-full h-[25vh] group mt-11",
         !url && "h-[12vh]",
         url && "bg-muted"
       )}

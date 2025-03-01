@@ -9,14 +9,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, User } from "lucide-react";
+import { LogOut, ShieldUser, User } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { ModeToggle } from "@/app/components/mode-toggle";
+import { dark } from "@clerk/themes";
+import { useTheme } from "next-themes";
 
 const UserItem = () => {
   const clerk = useClerk();
   const { user } = useUser();
-
+  const { theme } = useTheme();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,7 +34,7 @@ const UserItem = () => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-80 mt-2 rounded-xl"
+        className="w-80 mt-2 rounded-xl bg-background dark:bg-background drop-shadow-md"
         align="end"
         forceMount
       >
@@ -56,8 +58,8 @@ const UserItem = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-between px-1">
-            <p className="text-xs">Theme</p>
+          <div className="flex items-center justify-between px-3">
+            <p className="text-xs">Appearance</p>
             <ModeToggle />
           </div>
           <DropdownMenuSeparator />
@@ -67,12 +69,30 @@ const UserItem = () => {
                 variant={"ghost"}
                 size={"sm"}
                 className="w-full justify-start h-8"
-                onClick={() => clerk.openUserProfile()}
+                onClick={() => {}}
               >
                 <User className="h-4 w-4 mr-2" />
+                Manage Profile
+              </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer p-0">
+              <Button
+                variant={"ghost"}
+                size={"sm"}
+                className="w-full justify-start h-8"
+                onClick={() =>
+                  clerk.openUserProfile({
+                    appearance: {
+                      baseTheme: theme === "dark" ? dark : undefined,
+                    },
+                  })
+                }
+              >
+                <ShieldUser className="h-4 w-4 mr-2" />
                 Manage Account
               </Button>
             </DropdownMenuItem>
+            <div className="h-2" />
             <DropdownMenuItem className="cursor-pointer p-0">
               <Button
                 variant={"ghost"}
