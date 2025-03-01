@@ -37,7 +37,7 @@ export const Cover = ({ url, preview }: CoverImageProps) => {
       {url && !preview && (
         <div className="opacity-0 group-hover:opacity-100 transition absolute bottom-5 right-5 flex items-center gap-x-2">
           <Button
-            className="text-muted-foreground text-xs"
+            className="text-muted-foreground text-xs bg-[#181717] border-none"
             variant="outline"
             size="sm"
             onClick={() => coverImage.onReplace(url)}
@@ -47,7 +47,7 @@ export const Cover = ({ url, preview }: CoverImageProps) => {
           </Button>
           <ConfirmModal onConfirm={onRemove}>
             <Button
-              className="text-muted-foreground text-xs"
+              className="text-muted-foreground text-xs bg-[#181717] border-none"
               variant="outline"
               size="sm"
             >

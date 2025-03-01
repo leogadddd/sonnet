@@ -36,43 +36,47 @@ const BlogsPage = () => {
   };
 
   return (
-    <div className="pt-[14.6rem] px-12">
-      <div className="mx-auto w-full max-w-3xl flex-1 lg:min-w-max">
-        <h2 className="pb-[11.5px] text-5xl font-bold break-words text-center md:text-left min-w-fit">
+    <div className="h-full flex flex-col items-center justify-center">
+      <div className="px-[54px]">
+        <h2 className="pb-[11.5px] text-5xl font-bold break-words text-center min-w-fit">
           Welcome to{" "}
           <span className={cn("font-bold max-w-fit", font.className)}>
             <span className="logo-text-gradient">Sonnet </span>
             <span className="text-muted-foreground">!</span>
           </span>
         </h2>
-        <p className="text-center md:text-left font-medium text-muted-foreground">
+        <p className="text-center font-medium text-muted-foreground">
           Craft your thoughts, share your ideas, and make your words count.
         </p>
         <div className="space-y-2 md:text-left text-center pt-4">
           <div className="">
-            <p className="text-base sm:text-lg font-medium">
+            <p className="text-base sm:text-lg font-medium text-muted-foreground">
               <span
                 className={cn("font-bold logo-text-gradient", font.className)}
               >
                 →
               </span>{" "}
-              <span className="font-bold">Create Your First Blog</span> – Begin
-              writing and express yourself.
+              <span className="font-bold text-foreground">
+                Create Your First Blog
+              </span>{" "}
+              – Begin writing and express yourself.
             </p>
           </div>
           <div>
-            <p className="text-base sm:text-lg font-medium">
+            <p className="text-base sm:text-lg font-medium text-muted-foreground">
               <span
                 className={cn("font-bold logo-text-gradient", font.className)}
               >
                 →
               </span>{" "}
-              <span className="font-bold">Explore Templates</span> – Get
-              inspired with pre-made formats.
+              <span className="font-bold text-foreground">
+                Explore Templates
+              </span>{" "}
+              – Get inspired with pre-made formats.
             </p>
           </div>
         </div>
-        <div className="flex items-center md:justify-start justify-center w-full gap-x-2 mt-24">
+        <div className="flex items-center justify-center w-full gap-x-2 mt-20">
           <Button asChild size={"lg"} variant={"ghost"}>
             <Link href="/explore">Explore Blogs</Link>
           </Button>

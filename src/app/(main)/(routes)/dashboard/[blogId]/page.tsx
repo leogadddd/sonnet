@@ -56,7 +56,7 @@ const DocumentIdPage = () => {
   return (
     <div className="pb-40">
       <Cover url={blog.contentData.coverImage} />
-      <div className="mx-auto w-full max-w-4xl flex-1 lg:min-w-max">
+      <div className="mx-auto max-w-6xl">
         <Toolbar initialData={blog} />
         <Editor onChange={onChange} initialContent={blog.contentData.content} />
       </div>

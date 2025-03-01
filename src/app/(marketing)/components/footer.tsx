@@ -4,7 +4,7 @@ import SonnetFooter from "@/components/sonnet-footer";
 
 const Footer = () => {
   return (
-    <div className="flex items-center gap-x-8 w-full p-6 bg-background z-50">
+    <div className="flex items-center gap-x-8 w-full p-6 dark:bg-[#181717] z-50">
       <SonnetFooter />
       <div className="md:ml justify-end flex items-center gap-x-2 text-muted-foreground">
         <Button variant="ghost" size="sm">
