@@ -134,7 +134,7 @@ Toolbar.Description = function Description({
 }: {
   initialData: Doc<"blogs">;
   preview: boolean;
-  update: any; // Add proper type from your Convex setup
+  update: any;
 }) {
   const inputRef = useRef<ComponentRef<"textarea">>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -182,16 +182,25 @@ Toolbar.Description = function Description({
         />
       ) : (
         <div
-          onClick={enableInput}
-          className="text-muted-foreground/40 text-base pb-[1px] pt-2 w-full"
+          onClick={preview ? undefined : enableInput}
+          className={cn(
+            "text-muted-foreground/40 text-base pb-[1px] pt-2 w-full",
+            preview && "cursor-default"
+          )}
         >
           <span
             className={cn(
-              `opacity-0 group-hover:opacity-100 transition break-words outline-none text-xs`,
-              value && "opacity-100 text-muted-foreground/50 text-base"
+              "transition break-words outline-none text-xs",
+              preview
+                ? "opacity-100 text-muted-foreground/50 text-base"
+                : "opacity-0 group-hover:opacity-100",
+              value &&
+                !preview &&
+                "opacity-100 text-muted-foreground/50 text-base"
             )}
           >
-            {initialData.contentData.description || "add description"}
+            {initialData.contentData.description ||
+              (preview ? "" : "add a description")}
           </span>
         </div>
       )}

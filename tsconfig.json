@@ -24,7 +24,9 @@
       "@/components/*": [
         "./src/app/components/*",
         "./src/app/(marketing)/components/*",
-        "./src/app/(main)/components/*"
+        "./src/app/(main)/components/*",
+        "./src/app/(explore)/components/*",
+        "./src/app/(public)/components/*"
       ],
       "@/lib/*": ["./src/lib/*"],
       "@/hooks/*": ["./hooks/*"],

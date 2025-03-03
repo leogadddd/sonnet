@@ -30,10 +30,14 @@ export const create = mutation({
         tags: [],
         likes: 0,
         views: 0,
+        publishedAt: undefined,
         isOnTrash: false,
         isArchived: false,
         isPublished: false,
         isOnExplore: false,
+      },
+      editorSettings: {
+        isPreview: false,
       },
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -60,8 +64,9 @@ export const update = mutation({
     views: v.optional(v.number()),
     isOnTrash: v.optional(v.boolean()),
     isArchived: v.optional(v.boolean()),
-    isPublished: v.optional(v.boolean()),
     isOnExplore: v.optional(v.boolean()),
+    isPublished: v.optional(v.boolean()),
+    publishedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getUser({ ctx, args });
@@ -94,12 +99,12 @@ export const update = mutation({
         views: args.views ?? blog.blogMeta.views,
         isOnTrash: args.isOnTrash ?? blog.blogMeta.isOnTrash,
         isArchived: args.isArchived ?? blog.blogMeta.isArchived,
-        isPublished: args.isPublished ?? blog.blogMeta.isPublished,
         isOnExplore: args.isOnExplore ?? blog.blogMeta.isOnExplore,
+        isPublished: args.isPublished ?? blog.blogMeta.isPublished,
+        publishedAt: args.publishedAt ?? blog.blogMeta.publishedAt,
       },
       updatedAt: Date.now(),
     };
-    
 
     // update the blog
     const updatedBlog = await ctx.db.patch(args.id, options);
@@ -132,7 +137,9 @@ export const remove = mutation({
     const recursiveRemove = async (blogId: Id<"blogs">) => {
       const children = await ctx.db
         .query("blogs")
-        .withIndex("by_user_parent", (q) => q.eq("authorId", userId).eq("parentBlog", blogId))
+        .withIndex("by_user_parent", (q) =>
+          q.eq("authorId", userId).eq("parentBlog", blogId)
+        )
         .collect();
 
       for (const child of children) {
@@ -179,28 +186,23 @@ export const getById = query({
     id: v.id("blogs"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-
     const blog = await ctx.db.get(args.id);
 
     // if there is no blog, throw an error
     if (!blog) {
       throw new Error("Blog not found");
     }
-    
+
     // if the blog is not archived and is published, return the blog
     // this is for public access
-    if(!blog.blogMeta.isArchived && blog.blogMeta.isPublished) {
+    if (!blog.blogMeta.isArchived && blog.blogMeta.isPublished) {
       return blog;
     }
 
-    // if the user is not the author of the blog, throw an error
-    if(identity?.subject !== blog.authorId) {
-      throw new Error("Unauthorized");
-    }
+    const userId = await getUser({ ctx, args });
 
     // if the user is not the author of the blog, throw an error
-    if(identity?.subject !== blog.authorId) {
+    if (userId !== blog.authorId) {
       throw new Error("Unauthorized");
     }
 
@@ -216,7 +218,7 @@ export const archive = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getUser({ ctx, args });
-    
+
     const existingBlog = await ctx.db.get(args.id);
 
     // if there is no blog, throw an error
@@ -232,7 +234,9 @@ export const archive = mutation({
     const recursiveArchive = async (blogId: Id<"blogs">) => {
       const children = await ctx.db
         .query("blogs")
-        .withIndex("by_user_parent", (q) => q.eq("authorId", userId).eq("parentBlog", blogId))
+        .withIndex("by_user_parent", (q) =>
+          q.eq("authorId", userId).eq("parentBlog", blogId)
+        )
         .collect();
 
       for (const child of children) {
@@ -277,7 +281,9 @@ export const restore = mutation({
     const recursiveRestore = async (blogId: Id<"blogs">) => {
       const children = await ctx.db
         .query("blogs")
-        .withIndex("by_user_parent", (q) => q.eq("authorId", userId).eq("parentBlog", blogId))
+        .withIndex("by_user_parent", (q) =>
+          q.eq("authorId", userId).eq("parentBlog", blogId)
+        )
         .collect();
 
       for (const child of children) {
@@ -347,7 +353,7 @@ export const getSidebar = query({
       .filter((q) => q.eq(q.field("parentBlog"), args.parentBlog))
       .order("desc")
       .collect();
-      
+
     return blogs;
   },
 });
@@ -390,15 +396,15 @@ export const removeIcon = mutation({
     id: v.id("blogs"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    
+    const userId = await getUser({ ctx, args });
+
     const existingBlog = await ctx.db.get(args.id);
 
     if (!existingBlog) {
       throw new Error("Blog not found");
     }
 
-    if (existingBlog.authorId !== identity?.subject) {
+    if (existingBlog.authorId !== userId) {
       throw new Error("Unauthorized");
     }
 
@@ -416,7 +422,7 @@ export const removeCoverImage = mutation({
     id: v.id("blogs"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
+    const userId = await getUser({ ctx, args });
 
     const existingBlog = await ctx.db.get(args.id);
 
@@ -424,7 +430,7 @@ export const removeCoverImage = mutation({
       throw new Error("Blog not found");
     }
 
-    if (existingBlog.authorId !== identity?.subject) {
+    if (existingBlog.authorId !== userId) {
       throw new Error("Unauthorized");
     }
 
@@ -438,15 +444,136 @@ export const removeCoverImage = mutation({
 
 // get the explore list of blogs
 export const getExplore = query({
-  handler: async (ctx) => {
+  args: {
+    isFeatured: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
     const blogs = await ctx.db
       .query("blogs")
       .filter((q) => q.eq(q.field("blogMeta.isArchived"), false))
       .filter((q) => q.eq(q.field("blogMeta.isPublished"), true))
       .filter((q) => q.eq(q.field("blogMeta.isOnExplore"), true))
+      .filter((q) =>
+        args.isFeatured ? q.eq(q.field("blogMeta.isFeatured"), true) : true
+      )
       .order("desc")
       .collect();
 
     return blogs;
+  },
+});
+
+export const setPreview = mutation({
+  args: {
+    id: v.id("blogs"),
+    isPreview: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getUser({ ctx, args });
+
+    const existingBlog = await ctx.db.get(args.id);
+
+    if (!existingBlog) {
+      throw new Error("Blog not found");
+    }
+
+    if (existingBlog.authorId !== userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const blog = await ctx.db.patch(args.id, {
+      editorSettings: {
+        ...existingBlog.editorSettings,
+        isPreview: args.isPreview,
+      },
+    });
+
+    return blog;
+  },
+});
+
+export const isPreview = query({
+  args: {
+    id: v.id("blogs"),
+  },
+  handler: async (ctx, args) => {
+    const blog = await ctx.db.get(args.id);
+
+    if (!blog) {
+      throw new Error("Blog not found");
+    }
+
+    // If the blog is published, allow public access to preview status
+    if (blog.blogMeta.isPublished) {
+      return blog.editorSettings.isPreview;
+    }
+
+    // For unpublished blogs, verify user authorization
+    const userId = await getUser({ ctx, args });
+    if (blog.authorId !== userId) {
+      throw new Error("Unauthorized");
+    }
+
+    return blog.editorSettings.isPreview;
+  },
+});
+
+export const publish = mutation({
+  args: {
+    id: v.id("blogs"),
+    isOnExplore: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getUser({ ctx, args });
+
+    const existingBlog = await ctx.db.get(args.id);
+
+    if (!existingBlog) {
+      throw new Error("Blog not found");
+    }
+
+    if (existingBlog.authorId !== userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const blog = await ctx.db.patch(args.id, {
+      blogMeta: {
+        ...existingBlog.blogMeta,
+        isOnExplore: args.isOnExplore,
+        isPublished: true,
+        publishedAt: Date.now(),
+      },
+    });
+
+    return blog;
+  },
+});
+
+export const unpublish = mutation({
+  args: {
+    id: v.id("blogs"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getUser({ ctx, args });
+
+    const existingBlog = await ctx.db.get(args.id);
+
+    if (!existingBlog) {
+      throw new Error("Blog not found");
+    }
+
+    if (existingBlog.authorId !== userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const blog = await ctx.db.patch(args.id, {
+      blogMeta: {
+        ...existingBlog.blogMeta,
+        isPublished: false,
+        publishedAt: undefined,
+      },
+    });
+
+    return blog;
   },
 });

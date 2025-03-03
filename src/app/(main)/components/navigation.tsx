@@ -40,7 +40,7 @@ export const Navigation = () => {
   const search = useSearch();
   const params = useParams();
   const pathname = usePathname();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const create = useMutation(api.blogs.create);
 

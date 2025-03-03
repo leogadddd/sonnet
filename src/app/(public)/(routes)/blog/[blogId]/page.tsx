@@ -9,45 +9,35 @@ import { Toolbar } from "@/components/toolbar";
 import { Cover } from "@/components/cover";
 import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from "next/dynamic";
-import { useEditor } from "@/hooks/use-editor";
+import Breadcrumbs from "@/components/breadcrumbs";
+import MetadataBar from "@/app/(public)/components/metadata";
 
 const BlogsPageEditor = () => {
   const params = useParams();
-
-  const update = useMutation(api.blogs.update);
+  const [isEditorLoaded, setIsEditorLoaded] = React.useState(false);
 
   const Editor = useMemo(
-    () => dynamic(() => import("@/components/editor"), { ssr: false }),
+    () =>
+      dynamic(() => import("@/components/editor"), {
+        ssr: false,
+        loading: () => <div className="w-full h-40" />,
+      }),
     []
   );
 
+  useEffect(() => {
+    setIsEditorLoaded(true);
+  }, []);
+
   const onChange = useMemo(() => {
     return (value: string) => {
-      update({
-        id: params.blogId as Id<"blogs">,
-        content: value,
-      });
+      // do nothing
     };
-  }, [update, params.blogId]);
-
-  const {
-    isLocked,
-    setIsLocked,
-    setCurrentBlog,
-    setIsPublished,
-    setIsShowOnExplore,
-  } = useEditor();
+  }, [params.blogId]);
 
   const blog = useQuery(api.blogs.getById, {
     id: params.blogId as Id<"blogs">,
   });
-
-  useEffect(() => {
-    setIsLocked(blog?.editorSettings.isPreview ?? false);
-    setIsPublished(blog?.blogMeta.isPublished ?? false);
-    setIsShowOnExplore(blog?.blogMeta.isOnExplore ?? false);
-    setCurrentBlog(blog ?? null);
-  }, [blog, setIsLocked, setCurrentBlog, setIsPublished, setIsShowOnExplore]);
 
   if (blog === undefined) {
     return (
@@ -65,20 +55,27 @@ const BlogsPageEditor = () => {
     );
   }
 
-  if (document === null) {
+  if (blog === null) {
     return <div>Not found</div>;
   }
 
   return (
     <div className="">
-      <Cover preview={isLocked ?? false} url={blog.contentData.coverImage} />
+      <Cover preview={true} url={blog.contentData.coverImage} />
+      <Breadcrumbs blog={blog} />
       <div className="mx-auto max-w-md lg:max-w-6xl md:max-w-4xl md:px-24">
-        <Toolbar preview={isLocked ?? false} initialData={blog} />
-        <Editor
-          editable={!isLocked}
-          onChange={onChange}
-          initialContent={blog.contentData.content}
-        />
+        <Toolbar preview={true} initialData={blog} />
+        <MetadataBar blog={blog} />
+        <div className="px-[54px]">
+          <div className="w-full border-t pb-12"></div>
+        </div>
+        {isEditorLoaded && (
+          <Editor
+            editable={false}
+            onChange={onChange}
+            initialContent={blog.contentData.content}
+          />
+        )}
       </div>
     </div>
   );

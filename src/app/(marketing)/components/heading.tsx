@@ -1,17 +1,18 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Globe, Pen } from "lucide-react";
 
 import { Button } from "@/app/components/ui/button";
 import { Poppins } from "next/font/google";
 
 import { cn } from "@/lib/utils";
 import { useConvexAuth } from "convex/react";
-import { Spinner } from "@/app/components/spinner";
 import Link from "next/link";
 import { SignInButton } from "@clerk/clerk-react";
 import Image from "next/image";
 import posthog from "posthog-js";
+import { useTheme } from "next-themes";
+import { dark } from "@clerk/themes";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -20,6 +21,7 @@ const font = Poppins({
 
 export const Heading = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const { theme } = useTheme();
 
   return (
     <div className="max-w-3xl space-y-4">
@@ -35,22 +37,40 @@ export const Heading = () => {
         — effortless, every time!
       </h3>
       <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-4 pt-6">
-        <Button asChild size={"lg"} variant={"ghost"}>
-          <Link href="/explore">Explore</Link>
-        </Button>
+        {isAuthenticated && (
+          <Button
+            asChild
+            size={"lg"}
+            variant={"ghost"}
+            className="hover:bg-foreground/5"
+          >
+            <Link href="/explore">
+              <Globe className="w-4 h-4" />
+              <span className="">Explore</span>
+            </Link>
+          </Button>
+        )}
         {isAuthenticated && !isLoading && (
           <Button asChild size={"lg"} className="rounded-lg">
             <Link
-              href="/documents"
+              href="/dashboard"
               onClick={() => posthog.capture("clicked Continue Writing")}
             >
-              Continue Writing
+              <Pen className="w-4 h-4" />
+              Start Writing
               <ArrowRight className="h-4 w-4 ml-1" />
             </Link>
           </Button>
         )}
         {!isAuthenticated && (
-          <SignInButton mode="modal" signUpFallbackRedirectUrl="/documents">
+          <SignInButton
+            mode="modal"
+            signUpFallbackRedirectUrl="/documents"
+            appearance={{
+              baseTheme: theme === "dark" ? dark : undefined,
+            }}
+            forceRedirectUrl="/explore"
+          >
             <Button
               size={"lg"}
               className="rounded-lg"
