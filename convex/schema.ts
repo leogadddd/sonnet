@@ -15,12 +15,14 @@ export default defineSchema({
     }),
     savedBlogs: v.optional(v.array(v.id("blogs"))),
     likedBlogs: v.optional(v.array(v.id("blogs"))),
-    userMeta: v.optional(v.object({
-      isVerified: v.optional(v.boolean()),
-      isBanned: v.optional(v.boolean()),
-      isDeleted: v.optional(v.boolean()),
-      deletedAt: v.optional(v.number()),
-    })),
+    userMeta: v.optional(
+      v.object({
+        isVerified: v.optional(v.boolean()),
+        isBanned: v.optional(v.boolean()),
+        isDeleted: v.optional(v.boolean()),
+        deletedAt: v.optional(v.number()),
+      })
+    ),
     options: v.object({
       isDarkMode: v.optional(v.boolean()),
     }),
@@ -48,11 +50,17 @@ export default defineSchema({
       tags: v.optional(v.array(v.string())),
       likes: v.optional(v.number()),
       views: v.optional(v.number()),
+      comments: v.optional(v.number()),
+      shares: v.optional(v.number()),
+      publishedAt: v.optional(v.number()),
       isOnTrash: v.optional(v.boolean()),
       isArchived: v.optional(v.boolean()),
       isPublished: v.optional(v.boolean()),
       isOnExplore: v.optional(v.boolean()),
       isFeatured: v.optional(v.boolean()),
+    }),
+    editorSettings: v.object({
+      isPreview: v.optional(v.boolean()),
     }),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -63,4 +71,25 @@ export default defineSchema({
     .index("by_is_published", ["blogMeta.isPublished"])
     .index("by_is_archived", ["blogMeta.isArchived"])
     .index("by_is_on_trash", ["blogMeta.isOnTrash"]),
+  shareLinks: defineTable({
+    blogId: v.id("blogs"),
+    authorId: v.string(),
+    link: v.string(),
+    views: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_blog", ["blogId"])
+    .index("by_author", ["authorId"]),
+  comments: defineTable({
+    blogId: v.id("blogs"),
+    parentComment: v.optional(v.id("comments")),
+    authorId: v.string(),
+    content: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_blog", ["blogId"])
+    .index("by_parent_comment", ["parentComment"])
+    .index("by_author", ["authorId"]),
 });

@@ -51,8 +51,12 @@ export const Title = ({ initialData }: TitleProps) => {
   };
 
   return (
-    <div className="flex items-center gap-x-1">
-      {!!initialData.contentData.icon && <p className="text-xl mb-1">{initialData.contentData.icon}</p>}
+    <div className="flex items-center gap-x-1 min-w-0">
+      {!!initialData.contentData.icon && (
+        <p className="text-xl mb-1 flex-shrink-0">
+          {initialData.contentData.icon}
+        </p>
+      )}
       {isEditing ? (
         <Input
           className="h-9 px-2 focus-visible:ring-0 text-lg"
@@ -68,9 +72,9 @@ export const Title = ({ initialData }: TitleProps) => {
           onClick={enableInput}
           variant="ghost"
           size="sm"
-          className="text-lg p-1 h-9 px-2 font-bold"
+          className="text-lg p-1 h-9 px-2 font-bold w-full "
         >
-          <span className="truncate text-[#2c2c2c] dark:text-[#dbdbdb]">
+          <span className="truncate block w-full text-[#2c2c2c] dark:text-[#dbdbdb]">
             {initialData.title}
           </span>
         </Button>

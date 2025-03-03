@@ -11,24 +11,23 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import UserItem from "@/app/(marketing)/components/user-item-marketing";
 import { useTheme } from "next-themes";
-import { ChevronRight, Menu } from "lucide-react";
+import { ChevronRight, Globe, Loader2, Menu, Pen } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
 import { dark } from "@clerk/themes";
+import { Spinner } from "@/app/components/spinner";
 
 export const Navbar = () => {
   const { theme } = useTheme();
   const { isAuthenticated, isLoading } = useConvexAuth();
-  const scrolled = useScrollTop();
 
   return (
     <div
       className={cn(
-        "z-50 bg-background flex items-center justify-evenly p-6 w-full",
-        scrolled && "shadow-sm"
+        "z-50 dark:bg-[#181717] flex items-center justify-evenly p-6 w-full"
       )}
     >
       <div className="flex justify-start flex-1 md:flex-none">
@@ -37,22 +36,36 @@ export const Navbar = () => {
 
       {/* Centered navigation links */}
       <div className="flex-1 md:flex hidden justify-end space-x-4 pr-6 text-muted-foreground">
-        <Button variant="ghost" size="sm" asChild className="h-9">
-          <Link href="/explore">Explore</Link>
-        </Button>
-        <Button variant="ghost" size="sm" asChild className="h-9">
+        {isAuthenticated && (
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="h-9 hover:bg-foreground/5"
+          >
+            <Link href="/explore">Explore</Link>
+          </Button>
+        )}
+        {/* <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="h-9 hover:bg-foreground/5"
+        >
           <Link href="/pricing">Pricing</Link>
-        </Button>
+        </Button> */}
       </div>
 
       {/* Right-aligned controls */}
       <div className="flex justify-end items-center gap-x-3">
+        {isLoading && <Spinner />}
         {!isAuthenticated && !isLoading && (
           <SignInButton
             mode="modal"
             appearance={{
               baseTheme: theme === "dark" ? dark : undefined,
             }}
+            forceRedirectUrl="/explore"
           >
             <Button variant={"ghost"} size={"sm"} className="rounded-lg h-9">
               Log In
@@ -61,7 +74,10 @@ export const Navbar = () => {
         )}
         {isAuthenticated && !isLoading && (
           <Button size={"sm"} className="rounded-lg" asChild>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/dashboard">
+              <Pen className="w-4 h-4" />
+              <span className="hidden md:block">Start Writing</span>
+            </Link>
           </Button>
         )}
         {!isAuthenticated && <ModeToggle />}
@@ -85,12 +101,12 @@ Navbar.MobileMenu = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-60 mt-2 rounded-xl"
+        className="w-60 mt-2 rounded-xl dark:bg-[#181717] drop-shadow-md"
         align="end"
         forceMount
       >
         <div className="flex flex-col gap-y-2">
-          <Button
+          {/* <Button
             variant="ghost"
             size="sm"
             asChild
@@ -99,7 +115,7 @@ Navbar.MobileMenu = () => {
             <Link href="/explore" className="flex justify-between">
               Explore <ChevronRight className="h-4 w-4" />
             </Link>
-          </Button>
+          </Button> */}
           <Button
             variant="ghost"
             size="sm"

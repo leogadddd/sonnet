@@ -81,7 +81,7 @@ body,
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background dark:bg-[#181717] text-foreground;
   }
 }
 
@@ -90,7 +90,6 @@ body,
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: inline-block;
 }
 
 .cl-internal-1hl4aku {

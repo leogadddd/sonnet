@@ -35,7 +35,7 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
   };
 
   return (
-    <div className="pl-[54px] group relative pb-6">
+    <div className="w-full px-[54px] group relative pb-6">
       <Toolbar.Icon
         initialData={initialData}
         preview={preview || false}
@@ -134,7 +134,7 @@ Toolbar.Description = function Description({
 }: {
   initialData: Doc<"blogs">;
   preview: boolean;
-  update: any; // Add proper type from your Convex setup
+  update: any;
 }) {
   const inputRef = useRef<ComponentRef<"textarea">>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -178,20 +178,29 @@ Toolbar.Description = function Description({
           onBlur={disableInput}
           value={value}
           onChange={(e) => onInput(e.target.value)}
-          className="pt-2 text-muted-foreground text-base bg-transparent break-words outline-none resize-none w-full"
+          className="pt-2 text-muted-foreground break-words outline-none text-base bg-transparent w-full resize-none"
         />
       ) : (
         <div
-          onClick={enableInput}
-          className="text-muted-foreground/40 text-base pb-[1px] pt-2 w-full"
+          onClick={preview ? undefined : enableInput}
+          className={cn(
+            "text-muted-foreground/40 text-base pb-[1px] pt-2 w-full",
+            preview && "cursor-default"
+          )}
         >
           <span
             className={cn(
-              `opacity-0 group-hover:opacity-100 transition`,
-              value && "opacity-100 text-muted-foreground"
+              "transition break-words outline-none text-xs",
+              preview
+                ? "opacity-100 text-muted-foreground/50 text-base"
+                : "opacity-0 group-hover:opacity-100",
+              value &&
+                !preview &&
+                "opacity-100 text-muted-foreground/50 text-base"
             )}
           >
-            {initialData.contentData.description || "Add a description..."}
+            {initialData.contentData.description ||
+              (preview ? "" : "add a description")}
           </span>
         </div>
       )}
@@ -222,7 +231,7 @@ Toolbar.Icon = function Icon({
           <Button
             onClick={onRemoveIcon}
             className="rounded-full opacity-0 group-hover/icon:opacity-100 transition text-muted-foreground text-xs"
-            variant={"outline"}
+            variant={"ghost"}
             size={"icon"}
           >
             <X className="h-4 w-4" />
@@ -252,8 +261,8 @@ Toolbar.Bar = function Bar({
       {!initialData.contentData.icon && !preview && (
         <IconPicker onChange={onIconSelect} asChild>
           <Button
-            className="text-muted-foreground text-xs "
-            variant={"outline"}
+            className="text-muted-foreground/40 text-xs"
+            variant={"ghost"}
             size={"sm"}
           >
             <Smile className="h-4 w-4 mr-2" />
@@ -263,8 +272,8 @@ Toolbar.Bar = function Bar({
       )}
       {!initialData.contentData.coverImage && !preview && (
         <Button
-          className="text-muted-foreground text-xs "
-          variant={"outline"}
+          className="text-muted-foreground/40 text-xs "
+          variant={"ghost"}
           size={"sm"}
           onClick={coverImageOnOpen}
         >

@@ -60,7 +60,7 @@ const Bloglist = React.memo(({ parentBlog, level = 0 }: BloglistProps) => {
           paddingLeft: level ? `${level * 12 + 25}px` : undefined,
         }}
         className={cn(
-          "hidden text-xs font-medium text-muted-foreground/25 ml-4 py-1",
+          "hidden text-xs font-medium text-muted-foreground/25 ml-4 py-1 truncate w-full",
           level === 0 && "hidden",
           expanded && "last:block"
         )}

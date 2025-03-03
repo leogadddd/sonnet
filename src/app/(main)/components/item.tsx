@@ -60,7 +60,6 @@ const Item = ({
   const archive = useMutation(api.blogs.archive);
   const publish = usePublish();
 
-
   const onArchive = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
@@ -113,12 +112,17 @@ const Item = ({
     publish.onOpen();
   }, [publish]);
 
-
   const ChevronIcon = expanded ? ChevronDown : ChevronRight;
 
   // Memoize the context menu component
   const contextMenu = useMemo(
-    () => <Item.ContextMenu onArchive={onArchive} onPublish={onPublish} label={label} />,
+    () => (
+      <Item.ContextMenu
+        onArchive={onArchive}
+        onPublish={onPublish}
+        label={label}
+      />
+    ),
     [onArchive, label, onPublish]
   );
 

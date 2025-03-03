@@ -34,7 +34,7 @@ const UserItem = () => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-80 mt-2 rounded-xl bg-background dark:bg-background drop-shadow-md"
+        className="w-80 mt-2 rounded-xl bg-background dark:bg-[#181717] drop-shadow-md"
         align="end"
         forceMount
       >
@@ -68,7 +68,7 @@ const UserItem = () => {
               <Button
                 variant={"ghost"}
                 size={"sm"}
-                className="w-full justify-start h-8"
+                className="w-full justify-start h-8 rounded-lg"
                 onClick={() => {}}
               >
                 <User className="h-4 w-4 mr-2" />
@@ -79,7 +79,7 @@ const UserItem = () => {
               <Button
                 variant={"ghost"}
                 size={"sm"}
-                className="w-full justify-start h-8"
+                className="w-full justify-start h-8 rounded-lg"
                 onClick={() =>
                   clerk.openUserProfile({
                     appearance: {
@@ -97,7 +97,7 @@ const UserItem = () => {
               <Button
                 variant={"ghost"}
                 size={"sm"}
-                className="w-full justify-start h-8"
+                className="w-full justify-start h-8 rounded-lg"
                 onClick={() => clerk.signOut()}
               >
                 <LogOut className="h-4 w-4 mr-2 text-red-500" />

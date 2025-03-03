@@ -28,16 +28,17 @@ export const Cover = ({ url, preview }: CoverImageProps) => {
   return (
     <div
       className={cn(
-        "relative w-full h-[25vh] group mt-11",
-        !url && "h-[12vh]",
-        url && "bg-muted"
+        "relative w-full h-[23vh] group mt-11",
+        !url && "h-[5vh]",
+        url && "bg-muted",
+        preview && "mt-0"
       )}
     >
       {!!url && <Image src={url} fill alt="Cover" className="object-cover" />}
       {url && !preview && (
         <div className="opacity-0 group-hover:opacity-100 transition absolute bottom-5 right-5 flex items-center gap-x-2">
           <Button
-            className="text-muted-foreground text-xs"
+            className="text-muted-foreground text-xs bg-[#181717] border-none"
             variant="outline"
             size="sm"
             onClick={() => coverImage.onReplace(url)}
@@ -47,7 +48,7 @@ export const Cover = ({ url, preview }: CoverImageProps) => {
           </Button>
           <ConfirmModal onConfirm={onRemove}>
             <Button
-              className="text-muted-foreground text-xs"
+              className="text-muted-foreground text-xs bg-[#181717] border-none"
               variant="outline"
               size="sm"
             >

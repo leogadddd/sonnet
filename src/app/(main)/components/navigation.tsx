@@ -40,7 +40,7 @@ export const Navigation = () => {
   const search = useSearch();
   const params = useParams();
   const pathname = usePathname();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const create = useMutation(api.blogs.create);
 
@@ -105,6 +105,7 @@ export const Navigation = () => {
       setIsResetting(true);
 
       sidebarRef.current.style.width = isMobile ? "100%" : "240px";
+      sidebarRef.current.style.opacity = "1";
       navbarRef.current.style.setProperty(
         "width",
         isMobile ? "0" : "calc(100% - 240px)"
@@ -120,6 +121,7 @@ export const Navigation = () => {
       setIsResetting(true);
 
       sidebarRef.current.style.width = "0";
+      sidebarRef.current.style.opacity = "0";
       navbarRef.current.style.setProperty("width", "100%");
       navbarRef.current.style.setProperty("left", "0");
       setTimeout(() => setIsResetting(false), 300);
