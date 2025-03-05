@@ -14,7 +14,8 @@ import { useEdgeStore } from "@/lib/edgestore";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
 import { useParams } from "next/navigation";
-import { Id } from "@/convex/_generated/dataModel";
+import { useDexie } from "@/components/providers/dexie-provider";
+
 export const CoverImageModal = () => {
   const params = useParams();
   const update = useMutation(api.blogs.update);
@@ -22,6 +23,7 @@ export const CoverImageModal = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const coverImage = useCoverImage();
   const { edgestore } = useEdgeStore();
+  const { actions } = useDexie();
 
   const onClose = () => {
     setFile(undefined);
@@ -41,8 +43,7 @@ export const CoverImageModal = () => {
         },
       });
 
-      await update({
-        id: params.blogId as Id<"blogs">,
+      await actions.blog.update(params.blogId as string, {
         coverImage: res.url,
       });
 
@@ -53,10 +54,10 @@ export const CoverImageModal = () => {
   return (
     <Dialog open={coverImage.isOpen} onOpenChange={coverImage.onClose}>
       <DialogContent className="bg-background dark:bg-[#181717] drop-shadow-lg rounded-lg">
-      <DialogHeader className="border-b pb-3">
-        <DialogTitle>Cover Image</DialogTitle>
-        <DialogDescription>Add a cover image to your blog.</DialogDescription>
-      </DialogHeader>
+        <DialogHeader className="border-b pb-3">
+          <DialogTitle>Cover Image</DialogTitle>
+          <DialogDescription>Add a cover image to your blog.</DialogDescription>
+        </DialogHeader>
         <SingleImageDropzone
           className="w-full "
           value={file}

@@ -14,85 +14,76 @@ import { Check, CircleCheck, Copy, Globe, Link } from "lucide-react";
 import { Button } from "../ui/button";
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import { api } from "@/convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
-import { useEditor } from "@/hooks/use-editor";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { useOrigin } from "@/hooks/use-origin";
+import { useDexie } from "@/components/providers/dexie-provider";
+import { useLiveQuery } from "dexie-react-hooks";
 
 export const PublishModal = () => {
   const params = useParams();
+  const blogId = params.blogId as string;
+
+  const { actions, db } = useDexie();
+  const blog = useLiveQuery(async () => {
+    if (!blogId) {
+      return null;
+    }
+
+    return await db.blogs.where("blogId").equals(blogId).first();
+  }, [blogId]);
+
   const origin = useOrigin();
 
   const publishContext = usePublish();
-  const { isShowOnExplore, isPublished, setIsShowOnExplore, setIsPublished } =
-    useEditor();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-
-  const update = useMutation(api.blogs.update);
-  const publish = useMutation(api.blogs.publish);
-  const unpublish = useMutation(api.blogs.unpublish);
 
   const showOnExpore = React.useCallback(
     async (checked: boolean) => {
       try {
         setIsLoading(true);
-        setIsShowOnExplore(checked);
-
-        await update({
-          id: params.blogId as Id<"blogs">,
-          isOnExplore: checked,
+        actions.blog.update(blogId, {
+          isOnExplore: checked ? 1 : 0,
         });
       } catch (error) {
-        // Revert state on error
-        setIsShowOnExplore(!checked);
         toast.error("Failed to update blog");
       } finally {
         setIsLoading(false);
       }
     },
-    [params.blogId, update]
+    [blogId, actions.blog]
   );
 
   const publishBlog = React.useCallback(async () => {
     try {
       setIsLoading(true);
-      await publish({
-        id: params.blogId as Id<"blogs">,
-        isOnExplore: isShowOnExplore,
-      });
-      setIsPublished(true);
+      actions.blog.publish(blogId);
       toast.success("Blog published");
     } catch (error) {
       toast.error("Failed to publish blog");
     } finally {
       setIsLoading(false);
     }
-  }, [params.blogId, publish, isShowOnExplore]);
+  }, [blogId, actions.blog]);
 
   const unpublishBlog = React.useCallback(async () => {
     try {
       setIsLoading(true);
-      await unpublish({
-        id: params.blogId as Id<"blogs">,
-      });
-      setIsPublished(false);
+      actions.blog.unpublish(blogId);
       toast.success("Blog unpublished");
     } catch (error) {
       toast.error("Failed to unpublish blog");
     } finally {
       setIsLoading(false);
     }
-  }, [params.blogId, unpublish]);
+  }, [blogId, actions.blog]);
 
   const handleCopy = React.useCallback(() => {
     setIsCopied(true);
-    const url = `${origin}/blog/${params.blogId}`;
+    const url = `${origin}/blog/${blogId}`;
     // if mobile, use the share button
     if (navigator.share) {
       navigator.share({
@@ -106,20 +97,20 @@ export const PublishModal = () => {
     setTimeout(() => {
       setIsCopied(false);
     }, 1000);
-  }, [params.blogId, origin]);
+  }, [blogId, origin]);
 
   const handleOpenInNewTab = React.useCallback(() => {
-    const url = `${origin}/blog/${params.blogId}`;
+    const url = `${origin}/blog/${blogId}`;
     window.open(url, "_blank");
-  }, [params.blogId, origin]);
+  }, [blogId, origin]);
 
   const handlePublish = React.useCallback(() => {
-    if (isPublished) {
+    if (blog?.isPublished === 1) {
       unpublishBlog();
     } else {
       publishBlog();
     }
-  }, [isPublished, publishBlog, unpublishBlog]);
+  }, [blog, publishBlog, unpublishBlog]);
 
   return (
     <Dialog open={publishContext.isOpen} onOpenChange={publishContext.onClose}>
@@ -136,7 +127,7 @@ export const PublishModal = () => {
             <div className="flex flex-col gap-y-1">
               <Label>Status</Label>
               <span className="text-[0.8rem] text-muted-foreground">
-                {isPublished
+                {blog?.isPublished === 1
                   ? "This blog is currently published"
                   : "This blog is currently in draft"}
               </span>
@@ -144,14 +135,14 @@ export const PublishModal = () => {
             <div
               className={cn(
                 "flex items-center gap-x-2 rounded-md bg-muted p-1 px-2",
-                isPublished && "bg-sky-800"
+                blog?.isPublished === 1 && "bg-sky-800"
               )}
             >
-              {isPublished ? (
+              {blog?.isPublished === 1 ? (
                 <Globe
                   className={cn(
                     "h-4 w-4 text-muted-foreground",
-                    isPublished && "text-blue-400"
+                    blog?.isPublished === 1 && "text-blue-400"
                   )}
                 />
               ) : (
@@ -160,22 +151,22 @@ export const PublishModal = () => {
               <span
                 className={cn(
                   "text-sm text-muted-foreground",
-                  isPublished && "text-blue-400"
+                  blog?.isPublished === 1 && "text-blue-400"
                 )}
               >
-                {isPublished ? "Published" : "Draft"}
+                {blog?.isPublished === 1 ? "Published" : "Draft"}
               </span>
             </div>
           </div>
         </div>
-        {isPublished && (
+        {blog?.isPublished === 1 && (
           <div className="p-2 flex flex-col gap-y-2 rounded-lg border border-dashed border-muted-foreground/25">
             <div className="flex items-center gap-x-2">
               <Input
                 type="text"
                 readOnly
                 className="text-muted-foreground focus-visible:ring-0 rounded-lg"
-                value={`${origin}/blog/${params.blogId}`}
+                value={`${origin}/blog/${blogId}`}
               ></Input>
               <Button
                 size={"icon"}
@@ -215,7 +206,7 @@ export const PublishModal = () => {
             </div>
             <Switch
               id="airplane-mode"
-              checked={isShowOnExplore}
+              checked={blog?.isOnExplore === 1}
               onCheckedChange={showOnExpore}
             />
           </div>
@@ -224,13 +215,17 @@ export const PublishModal = () => {
           size={"lg"}
           className={cn(
             "w-full mt-6 rounded-lg",
-            isPublished &&
+            blog?.isPublished === 1 &&
               "bg-muted/50 text-muted-foreground hover:bg-muted rounded-lg"
           )}
           onClick={handlePublish}
           disabled={isLoading}
         >
-          {isLoading ? "Publishing..." : isPublished ? "Unpublish" : "Publish"}
+          {isLoading
+            ? "Publishing..."
+            : blog?.isPublished === 1
+              ? "Unpublish"
+              : "Publish"}
         </Button>
       </DialogContent>
     </Dialog>

@@ -1,26 +1,28 @@
 "use client";
 
-import { Id } from "@/convex/_generated/dataModel";
 import React from "react";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/modals/confirm-modal";
+import { useDexie } from "@/app/components/providers/dexie-provider";
+import { useLiveQuery } from "dexie-react-hooks";
 
 interface BannerProps {
-  blogId: Id<"blogs">;
+  blogId: string;
 }
 
 const Banner = ({ blogId }: BannerProps) => {
   const router = useRouter();
-  const remove = useMutation(api.blogs.remove);
-  const restore = useMutation(api.blogs.restore);
+  const { actions, db } = useDexie();
+
+  const currentBlog = useLiveQuery(async () => {
+    return await db.blogs.where("blogId").equals(blogId).first();
+  }, [blogId]);
 
   const onRemove = () => {
     router.push("/dashboard");
-    const promise = remove({ id: blogId });
+    const promise = actions.blog.delete(blogId);
 
     toast.promise(promise, {
       loading: "Deleting blog...",
@@ -30,7 +32,7 @@ const Banner = ({ blogId }: BannerProps) => {
   };
 
   const onRestore = () => {
-    const promise = restore({ id: blogId });
+    const promise = actions.blog.restore(blogId);
 
     toast.promise(promise, {
       loading: "Restoring blog...",
@@ -39,7 +41,7 @@ const Banner = ({ blogId }: BannerProps) => {
     });
   };
 
-  if (blogId === null) {
+  if (currentBlog?.isArchived === 0) {
     return null;
   }
 

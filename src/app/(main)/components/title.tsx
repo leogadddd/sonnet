@@ -1,20 +1,20 @@
 "use client";
 
-import { useMutation } from "convex/react";
-import { Doc } from "@/convex/_generated/dataModel";
-import { api } from "@/convex/_generated/api";
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import Blog from "@/lib/dexie/blog";
+import { useDexie } from "@/app/components/providers/dexie-provider";
+
 interface TitleProps {
-  initialData: Doc<"blogs">;
+  initialData: Blog;
 }
 
 export const Title = ({ initialData }: TitleProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const update = useMutation(api.blogs.update);
 
+  const { actions } = useDexie();
   const [isEditing, setIsEditing] = useState(false);
 
   const [title, setTitle] = useState(initialData.title || "Untitled");
@@ -34,8 +34,7 @@ export const Title = ({ initialData }: TitleProps) => {
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
-    update({
-      id: initialData._id,
+    actions.blog.update(initialData.blogId, {
       title: event.target.value,
     });
   };
@@ -52,10 +51,8 @@ export const Title = ({ initialData }: TitleProps) => {
 
   return (
     <div className="flex items-center gap-x-1 min-w-0">
-      {!!initialData.contentData.icon && (
-        <p className="text-xl mb-1 flex-shrink-0">
-          {initialData.contentData.icon}
-        </p>
+      {!!initialData.icon && (
+        <p className="text-xl mb-1 flex-shrink-0">{initialData.icon}</p>
       )}
       {isEditing ? (
         <Input

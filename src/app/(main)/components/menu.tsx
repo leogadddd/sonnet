@@ -1,17 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Doc } from "@/convex/_generated/dataModel";
+import React from "react";
 
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { LockIcon, MoreHorizontal, Share, Trash, Unlock } from "lucide-react";
+import {
+  LockIcon,
+  MoreHorizontal,
+  Pin,
+  Share,
+  Trash,
+  Unlock,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePublish } from "@/hooks/use-publish";
-import { useEditor } from "@/hooks/use-editor";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -19,24 +22,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/app/components/ui/popover";
+import Blog from "@/lib/dexie/blog";
+import { useDexie } from "@/app/components/providers/dexie-provider";
+import { useMenu } from "@/hooks/use-menu";
 
 interface MenuProps {
-  initialData: Doc<"blogs">;
+  initialData: Blog;
 }
 
 const Menu = ({ initialData }: MenuProps) => {
   const router = useRouter();
+  const { actions, db } = useDexie();
   const publish = usePublish();
-  const { isLocked, setIsLocked } = useEditor();
-  const setPreview = useMutation(api.blogs.setPreview);
-  const blog = useQuery(api.blogs.getById, {
-    id: initialData._id,
-  });
-
-  const archive = useMutation(api.blogs.archive);
+  const menu = useMenu();
 
   const onArchive = React.useCallback(() => {
-    const promise = archive({ id: initialData._id });
+    const promise = actions.blog.archive(initialData.blogId);
 
     toast.promise(promise, {
       loading: "Moving to trash...",
@@ -45,17 +46,12 @@ const Menu = ({ initialData }: MenuProps) => {
     });
 
     router.push("/dashboard");
-  }, [archive, initialData, router]);
+  }, [initialData, router]);
 
   // takes in a boolean and returns a promise
   const onLockToggle = React.useCallback(
     (isLocked: boolean) => {
-      setIsLocked(isLocked);
-
-      const promise = setPreview({
-        id: initialData._id,
-        isPreview: isLocked,
-      });
+      const promise = actions.blog.setPreview(initialData.blogId, isLocked);
 
       toast.promise(promise, {
         loading: "Locking blog...",
@@ -63,14 +59,19 @@ const Menu = ({ initialData }: MenuProps) => {
         error: "Failed to lock blog",
       });
     },
-    [initialData._id, setPreview]
+    [initialData]
   );
 
-  if (blog === undefined) {
+  const onPinToggle = React.useCallback(async () => {
+    menu.toggle();
+    await actions.blog.setPinned(initialData.blogId, !initialData.isPinned);
+  }, [initialData, menu]);
+
+  if (initialData === undefined) {
     return <Menu.Skeleton />;
   }
 
-  if (blog === null) {
+  if (initialData === null) {
     return null;
   }
 
@@ -83,7 +84,7 @@ const Menu = ({ initialData }: MenuProps) => {
       >
         <div className="flex items-center justify-between gap-x-2 w-full p-1 px-2 py-2">
           <Label className="flex items-center gap-x-2">
-            {isLocked ? (
+            {initialData.isPreview !== 1 ? (
               <>
                 <LockIcon className="h-4 w-4 mr-2" />
                 Lock Blog
@@ -96,10 +97,17 @@ const Menu = ({ initialData }: MenuProps) => {
             )}
           </Label>
           <Switch
-            checked={isLocked}
+            checked={initialData.isPreview === 1}
             onCheckedChange={onLockToggle}
             className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
           />
+        </div>
+        <div
+          className="cursor-pointer rounded-lg flex items-center gap-x-2 w-full p-1 px-2 hover:bg-muted"
+          onClick={onPinToggle}
+        >
+          <Pin className="h-4 w-4 mr-2 " />
+          {initialData.isPinned === 1 ? "Unpin" : "Pin"}
         </div>
         <div
           className="cursor-pointer rounded-lg flex items-center gap-x-2 w-full p-1 px-2 hover:bg-muted"
@@ -117,11 +125,11 @@ const Menu = ({ initialData }: MenuProps) => {
         </div>
       </PopoverContent>
     ),
-    [onArchive, isLocked, initialData, onLockToggle, publish]
+    [onArchive, initialData, onLockToggle, publish]
   );
 
   return (
-    <Popover>
+    <Popover open={menu.isOpen} onOpenChange={menu.toggle}>
       <PopoverTrigger asChild>
         <Button variant={"ghost"} size={"sm"}>
           <MoreHorizontal className="h-4 w-4" />
