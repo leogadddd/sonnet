@@ -1,16 +1,15 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
+import { useDexie } from "@/components/providers/dexie-provider";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -18,15 +17,17 @@ const font = Poppins({
 });
 
 const BlogsPage = () => {
-  const create = useMutation(api.blogs.create);
   const router = useRouter();
-
+  const { actions } = useDexie();
   const onCreate = () => {
-    const promise = create({
-      title: "New Blog",
-    }).then((blogId) => {
-      router.push(`/dashboard/${blogId}`);
-    });
+    const promise = actions.blog
+      .create({
+        title: "New Blog",
+        authorId: "1",
+      })
+      .then((blogId) => {
+        router.push(`/dashboard/${blogId}`);
+      });
 
     toast.promise(promise, {
       loading: "Creating a new blog...",

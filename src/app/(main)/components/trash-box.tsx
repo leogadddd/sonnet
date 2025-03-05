@@ -1,25 +1,27 @@
 "use client";
 
-import ConfirmModal from "@/app/components/modals/confirm-modal";
-import { Spinner } from "@/app/components/spinner";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
-import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import ConfirmModal from "@/components/modals/confirm-modal";
+import { Spinner } from "@/components/spinner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Search, Trash, Undo } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, memo, act } from "react";
 import { toast } from "sonner";
+import { useDexie } from "@/components/providers/dexie-provider";
+
+import Blog from "@/lib/dexie/blog";
+import { useLiveQuery } from "dexie-react-hooks";
 
 export const TrashBox = () => {
   const router = useRouter();
   const params = useParams();
-  const archivedBlogs = useQuery(api.blogs.getTrash);
-  const restore = useMutation(api.blogs.restore);
-  const restoreAll = useMutation(api.blogs.restoreAll);
-  const remove = useMutation(api.blogs.remove);
-  const removeAll = useMutation(api.blogs.removeAll);
+
+  const { actions, db } = useDexie();
+
+  const archivedBlogs = useLiveQuery(async () => {
+    return await db.blogs.where("isArchived").equals(1).toArray();
+  });
 
   const [search, setSearch] = useState("");
 
@@ -32,19 +34,16 @@ export const TrashBox = () => {
   );
 
   const onClick = useCallback(
-    (blogId: string) => {
-      router.push(`/dashboard/${blogId}`);
+    (blog: Blog) => {
+      router.push(`/dashboard/${blog.blogId}`);
     },
     [router]
   );
 
   const onRestore = useCallback(
-    (
-      event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-      blogId: Id<"blogs">
-    ) => {
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>, blogId: string) => {
       event.stopPropagation();
-      const promise = restore({ id: blogId });
+      const promise = actions.blog.restore(blogId);
 
       toast.promise(promise, {
         loading: "Restoring blog...",
@@ -52,12 +51,12 @@ export const TrashBox = () => {
         error: "Failed to restore blog.",
       });
     },
-    [restore]
+    [actions.blog.restore]
   );
 
   const onRemove = useCallback(
-    (blogId: Id<"blogs">) => {
-      const promise = remove({ id: blogId });
+    (blogId: string) => {
+      const promise = actions.blog.delete(blogId);
 
       toast.promise(promise, {
         loading: "Deleting blog...",
@@ -69,28 +68,28 @@ export const TrashBox = () => {
         router.push("/dashboard");
       }
     },
-    [remove, params.blogId, router]
+    [actions.blog.delete, params.blogId, router]
   );
 
   const onRestoreAll = useCallback(() => {
-    const promise = restoreAll();
+    const promise = actions.blog.restoreAll();
 
     toast.promise(promise, {
       loading: "Restoring all blogs...",
       success: "All blogs restored!",
       error: "Failed to restore all blogs.",
     });
-  }, [restoreAll]);
+  }, [actions.blog.restoreAll]);
 
   const onEmptyTrash = useCallback(() => {
-    const promise = removeAll();
+    const promise = actions.blog.deleteAll();
 
     toast.promise(promise, {
       loading: "Emptying trash...",
       success: "Trash emptied!",
       error: "Failed to empty trash.",
     });
-  }, [removeAll]);
+  }, [actions.blog.deleteAll]);
 
   if (archivedBlogs === undefined) {
     return (
@@ -127,9 +126,9 @@ export const TrashBox = () => {
         </p>
         {filteredBlogs?.map((blog) => (
           <TrashBox.Item
-            key={blog._id}
+            key={blog.blogId}
             blog={blog}
-            onClick={onClick}
+            onClick={() => onClick(blog)}
             onRestore={onRestore}
             onRemove={onRemove}
           />
@@ -154,41 +153,41 @@ export const TrashBox = () => {
 };
 
 interface TrashBoxItemProps {
-  blog: Doc<"blogs">;
+  blog: Blog;
   onClick: (blogId: string) => void;
   onRestore: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    blogId: Id<"blogs">
+    blogId: string
   ) => void;
-  onRemove: (blogId: Id<"blogs">) => void;
+  onRemove: (blogId: string) => void;
 }
 
 TrashBox.Item = memo(
   ({ blog, onClick, onRestore, onRemove }: TrashBoxItemProps) => {
     return (
       <div
-        key={blog._id}
+        key={blog.blogId}
         className="text-sm w-full rounded-lg hover:bg-primary/5 flex items-center text-primary justify-between px-2 py-1"
       >
         <div
           role="button"
-          onClick={() => onClick(blog._id)}
+          onClick={() => onClick(blog.blogId)}
           className="flex items-center gap-x-1 w-full mr-4"
         >
-          {blog.contentData.icon && (
-            <div className="shrink-0 mr-2 text-[18px]">{blog.contentData.icon}</div>
+          {blog.icon && (
+            <div className="shrink-0 mr-2 text-[18px]">{blog.icon}</div>
           )}
           <span className="truncate">{blog.title}</span>
         </div>
         <div className="flex items-center gap-x-2">
           <div
-            onClick={(e) => onRestore(e, blog._id)}
+            onClick={(e) => onRestore(e, blog.blogId)}
             role={"button"}
             className="h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
           >
             <Undo className="h-4 w-4 text-muted-foreground" />
           </div>
-          <ConfirmModal onConfirm={() => onRemove(blog._id)}>
+          <ConfirmModal onConfirm={() => onRemove(blog.blogId)}>
             <div
               role={"button"}
               className="h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"

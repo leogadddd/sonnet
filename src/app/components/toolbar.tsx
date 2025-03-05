@@ -1,86 +1,98 @@
 "use client";
 
-import { Doc } from "@/convex/_generated/dataModel";
 import { IconPicker } from "@/components/icon-picker";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, Smile, X } from "lucide-react";
-import { ComponentRef, useRef, useState } from "react";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { ComponentRef, useRef, useState, useMemo } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { useCoverImage } from "@/hooks/use-cover-image";
 import { cn } from "@/lib/utils";
+import Blog from "@/lib/dexie/blog";
+import { useDexie } from "./providers/dexie-provider";
 
 interface ToolbarProps {
-  initialData: Doc<"blogs">;
+  initialData: Blog;
   preview?: boolean;
 }
 
 export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
-  const update = useMutation(api.blogs.update);
-  const removeIcon = useMutation(api.blogs.removeIcon);
   const coverImage = useCoverImage();
+  const { actions } = useDexie();
 
   const onIconSelect = (icon: string) => {
-    update({
-      id: initialData._id,
+    actions.blog.update(initialData.blogId, {
       icon,
     });
   };
 
   const onRemoveIcon = () => {
-    removeIcon({
-      id: initialData._id,
+    actions.blog.update(initialData.blogId, {
+      icon: "",
     });
   };
 
-  return (
-    <div className="w-full px-[54px] group relative pb-6">
-      <Toolbar.Icon
-        initialData={initialData}
-        preview={preview || false}
-        onIconSelect={onIconSelect}
-        onRemoveIcon={onRemoveIcon}
-      />
-      <Toolbar.Bar
-        initialData={initialData}
-        preview={preview || false}
-        onIconSelect={onIconSelect}
-        coverImageOnOpen={coverImage.onOpen}
-      />
-      <Toolbar.Title
-        initialData={initialData}
-        preview={preview || false}
-        update={update}
-      />
-      <Toolbar.Description
-        initialData={initialData}
-        preview={preview || false}
-        update={update}
-      />
-    </div>
+  const onTitleChange = (title: string) => {
+    actions.blog.update(initialData.blogId, {
+      title,
+    });
+  };
+
+  const onDescriptionChange = (description: string) => {
+    actions.blog.update(initialData.blogId, {
+      description,
+    });
+  };
+
+  return useMemo(
+    () => (
+      <div className="w-full px-[54px] group relative pb-6">
+        <Toolbar.Icon
+          initialData={initialData.icon}
+          preview={preview || false}
+          onIconSelect={onIconSelect}
+          onRemoveIcon={onRemoveIcon}
+        />
+        <Toolbar.Bar
+          initialData={initialData}
+          preview={preview || false}
+          onIconSelect={onIconSelect}
+          coverImageOnOpen={coverImage.onOpen}
+        />
+        <Toolbar.Title
+          initialData={initialData.title}
+          onTitleChange={onTitleChange}
+          preview={preview || false}
+        />
+        <Toolbar.Description
+          initialData={initialData.description}
+          onDescriptionChange={onDescriptionChange}
+          preview={preview || false}
+        />
+      </div>
+    ),
+    [preview, onIconSelect, onRemoveIcon, coverImage.onOpen]
   );
 };
 
 Toolbar.Title = function Title({
   initialData,
   preview,
-  update,
+  onTitleChange,
 }: {
-  initialData: Doc<"blogs">;
+  initialData: string;
+  onTitleChange: (title: string) => void;
   preview: boolean;
-  update: any; // Add proper type from your Convex setup
 }) {
   const inputRef = useRef<ComponentRef<"textarea">>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(initialData.title);
+  const [value, setValue] = useState(initialData);
 
   const enableInput = () => {
     if (preview) return;
 
     setIsEditing(true);
     setTimeout(() => {
-      setValue(initialData.title);
+      setValue(initialData);
       inputRef.current?.focus();
       inputRef.current?.select();
     }, 0);
@@ -90,12 +102,9 @@ Toolbar.Title = function Title({
     setIsEditing(false);
   };
 
-  const onInput = (value: string) => {
+  const onInput = async (value: string) => {
     setValue(value);
-    update({
-      id: initialData._id,
-      title: value || "New Blog",
-    });
+    onTitleChange(value);
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -113,14 +122,14 @@ Toolbar.Title = function Title({
           onBlur={disableInput}
           value={value}
           onChange={(e) => onInput(e.target.value)}
-          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3f3f3f] dark:text-[#cfcfcf] resize-none"
+          className="text-5xl bg-transparent font-bold break-words outline-none text-[#3f3f3f] dark:text-[#cfcfcf] resize-none w-full"
         />
       ) : (
         <div
           onClick={enableInput}
           className="pb-[9px] text-5xl font-bold break-words outline-none text-[#3f3f3f] dark:text-[#cfcfcf]"
         >
-          {initialData.title}
+          {initialData}
         </div>
       )}
     </>
@@ -129,23 +138,23 @@ Toolbar.Title = function Title({
 
 Toolbar.Description = function Description({
   initialData,
+  onDescriptionChange,
   preview,
-  update,
 }: {
-  initialData: Doc<"blogs">;
+  initialData: string;
+  onDescriptionChange: (description: string) => void;
   preview: boolean;
-  update: any;
 }) {
   const inputRef = useRef<ComponentRef<"textarea">>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(initialData.contentData.description);
+  const [value, setValue] = useState(initialData);
 
   const enableInput = () => {
     if (preview) return;
 
     setIsEditing(true);
     setTimeout(() => {
-      setValue(initialData.contentData.description);
+      setValue(initialData);
       inputRef.current?.focus();
       inputRef.current?.select();
     }, 0);
@@ -157,10 +166,7 @@ Toolbar.Description = function Description({
 
   const onInput = (value: string) => {
     setValue(value);
-    update({
-      id: initialData._id,
-      description: value,
-    });
+    onDescriptionChange(value);
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -199,8 +205,7 @@ Toolbar.Description = function Description({
                 "opacity-100 text-muted-foreground/50 text-base"
             )}
           >
-            {initialData.contentData.description ||
-              (preview ? "" : "add a description")}
+            {initialData || (preview ? "" : "add a description")}
           </span>
         </div>
       )}
@@ -214,18 +219,18 @@ Toolbar.Icon = function Icon({
   onIconSelect,
   onRemoveIcon,
 }: {
-  initialData: Doc<"blogs">;
+  initialData: string;
   preview: boolean;
   onIconSelect: (icon: string) => void;
   onRemoveIcon: () => void;
 }) {
   return (
     <>
-      {!!initialData.contentData.icon && !preview && (
+      {!!initialData && !preview && (
         <div className="flex items-center gap-x-2 group/icon pt-6">
           <IconPicker onChange={onIconSelect}>
             <p className="text-6xl hover:opacity-75 transition cursor-pointer">
-              {initialData.contentData.icon}
+              {initialData}
             </p>
           </IconPicker>
           <Button
@@ -238,8 +243,8 @@ Toolbar.Icon = function Icon({
           </Button>
         </div>
       )}
-      {!!initialData.contentData.icon && preview && (
-        <p className="text-6xl pt-6">{initialData.contentData.icon}</p>
+      {!!initialData && preview && (
+        <p className="text-6xl pt-6">{initialData}</p>
       )}
     </>
   );
@@ -251,14 +256,14 @@ Toolbar.Bar = function Bar({
   onIconSelect,
   coverImageOnOpen,
 }: {
-  initialData: Doc<"blogs">;
+  initialData: Blog;
   preview: boolean;
   onIconSelect: (icon: string) => void;
   coverImageOnOpen: () => void;
 }) {
   return (
     <div className="opacity-0 group-hover:opacity-100 flex items-center gap-x-1 py-4">
-      {!initialData.contentData.icon && !preview && (
+      {!initialData.icon && !preview && (
         <IconPicker onChange={onIconSelect} asChild>
           <Button
             className="text-muted-foreground/40 text-xs"
@@ -270,7 +275,7 @@ Toolbar.Bar = function Bar({
           </Button>
         </IconPicker>
       )}
-      {!initialData.contentData.coverImage && !preview && (
+      {!initialData.coverImage && !preview && (
         <Button
           className="text-muted-foreground/40 text-xs "
           variant={"ghost"}

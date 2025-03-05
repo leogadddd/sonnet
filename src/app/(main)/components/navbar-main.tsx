@@ -1,25 +1,16 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
-import { Id } from "@/convex/_generated/dataModel";
-import {
-  ChevronLeft,
-  MenuIcon,
-  Lock,
-  LockOpen,
-  Globe,
-  Telescope,
-} from "lucide-react";
+import { ChevronLeft, MenuIcon, Lock, Globe, Telescope } from "lucide-react";
 import { Title } from "@/components/title";
 import Banner from "@/components/banner";
 import Menu from "@/components/menu";
 import { Badge } from "@/app/components/ui/badge";
-import { useEditor } from "@/hooks/use-editor";
 import { toast } from "sonner";
 import { usePublish } from "@/hooks/use-publish";
+import { useDexie } from "@/app/components/providers/dexie-provider";
+import { useLiveQuery } from "dexie-react-hooks";
 
 interface NavbarProps {
   isCollapsed: boolean;
@@ -40,21 +31,16 @@ NavbarSkeleton.displayName = "NavbarSkeleton";
 
 export const Navbar = React.memo(
   ({ isCollapsed, collapse, onResetWidth }: NavbarProps) => {
-    const {
-      isLocked,
-      setIsLocked,
-      isPublished,
-      setIsPublished,
-      isShowOnExplore,
-      setIsShowOnExplore,
-    } = useEditor();
-
     const params = useParams();
+    const blogId = params.blogId as string;
+
+    const { actions, db } = useDexie();
+
+    const blog = useLiveQuery(async () => {
+      return await db.blogs.where("blogId").equals(blogId).first();
+    }, [blogId]);
+
     const publish = usePublish();
-    const blog = useQuery(api.blogs.getById, {
-      id: params.blogId as Id<"blogs">,
-    });
-    const setPreview = useMutation(api.blogs.setPreview);
 
     // Memoize the click handlers
     const handleCollapse = useCallback(() => {
@@ -65,19 +51,17 @@ export const Navbar = React.memo(
       onResetWidth();
     }, [onResetWidth]);
 
-    const handleUnlock = useCallback(() => {
-      setIsLocked(false);
-      const promise = setPreview({
-        id: blog?._id as Id<"blogs">,
-        isPreview: false,
-      });
+    const handleUnlock = useCallback(async () => {
+      if (!blog) return;
+
+      const promise = actions.blog.setPreview(blog.blogId, false);
 
       toast.promise(promise, {
         loading: "Unlocking blog...",
         success: "Blog unlocked",
         error: "Failed to unlock blog",
       });
-    }, [blog, setPreview, setIsLocked]);
+    }, [blog]);
 
     if (blog === undefined) {
       return <NavbarSkeleton />;
@@ -106,11 +90,11 @@ export const Navbar = React.memo(
                   className="h-6 w-6 text-muted-foreground flex-shrink-0"
                 />
               )}
-              <div className="min-w-0 flex-1 pr-2">
+              <div className="min-w-0 flex-1 pr-1">
                 <Title initialData={blog} />
               </div>
-              <div className="flex items-center gap-x-2 flex-shrink-0 px-2 ml-4">
-                {isLocked && (
+              <div className="flex items-center gap-x-2 flex-shrink-0 px-2">
+                {blog.isPreview === 1 && (
                   <Badge
                     role="button"
                     onClick={handleUnlock}
@@ -124,7 +108,7 @@ export const Navbar = React.memo(
                     </div>
                   </Badge>
                 )}
-                {isPublished && (
+                {blog.isPublished === 1 && (
                   <Badge
                     role="button"
                     variant={"outline"}
@@ -138,7 +122,7 @@ export const Navbar = React.memo(
                     </div>
                   </Badge>
                 )}
-                {isShowOnExplore && (
+                {blog.isOnExplore === 1 && (
                   <Badge
                     role="button"
                     variant={"outline"}
@@ -161,7 +145,7 @@ export const Navbar = React.memo(
             </div>
           </div>
         </nav>
-        {blog.blogMeta.isArchived && <Banner blogId={blog._id} />}
+        {blog.isArchived === 1 && <Banner blogId={blog.blogId} />}
       </>
     );
   }

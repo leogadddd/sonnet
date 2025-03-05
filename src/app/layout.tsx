@@ -9,6 +9,7 @@ import "@/styles/globals.css";
 
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
+import { DexieProvider } from "./components/providers/dexie-provider";
 
 const poppins = Poppins({
   subsets: ["latin"], // Ensures support for Latin characters
@@ -34,23 +35,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${poppins.variable}`}>
-        <PostHogProvider>
-          <ConvexClientProvider>
-            <EdgeStoreProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-                storageKey="sonnet-theme-2"
-              >
-                <Toaster position="bottom-right" />
-                <ModalProvider />
-                {children}
-              </ThemeProvider>
-            </EdgeStoreProvider>
-          </ConvexClientProvider>
-        </PostHogProvider>
+        <DexieProvider>
+          <PostHogProvider>
+            <ConvexClientProvider>
+              <EdgeStoreProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                  storageKey="sonnet-theme-2"
+                >
+                  <Toaster position="bottom-right" />
+                  <ModalProvider />
+                  {children}
+                </ThemeProvider>
+              </EdgeStoreProvider>
+            </ConvexClientProvider>
+          </PostHogProvider>
+        </DexieProvider>
       </body>
     </html>
   );
