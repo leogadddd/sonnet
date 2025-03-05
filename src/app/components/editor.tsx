@@ -37,7 +37,9 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
         theme={resolvedTheme === "dark" ? "dark" : "light"}
         editable={editable}
         onChange={() => {
-          onChange(JSON.stringify(editor.document, null, 2));
+          if (onChange) {
+            onChange(JSON.stringify(editor.document, null, 2));
+          }
         }}
         data-theming-css-variables
       />

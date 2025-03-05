@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronsLeftRight, LogOut, ShieldUser, User } from "lucide-react";
+import { LogOut, ShieldUser, User } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,

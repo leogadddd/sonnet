@@ -15,8 +15,6 @@ import { usePathname, useParams } from "next/navigation";
 import { ComponentRef, useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import UserItem from "@/components/user-item";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import Item from "@/components/item";
 import { toast } from "sonner";
 import Bloglist from "@/app/(main)/components/blog-list";
@@ -34,6 +32,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Workspace from "@/components/workspace";
 
+import { useDexie } from "@/app/components/providers/dexie-provider";
+
 export const Navigation = () => {
   const router = useRouter();
   const settings = useSettings();
@@ -42,7 +42,7 @@ export const Navigation = () => {
   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  const create = useMutation(api.blogs.create);
+  const { actions } = useDexie();
 
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<ComponentRef<"aside">>(null);
@@ -128,12 +128,15 @@ export const Navigation = () => {
     }
   };
 
-  const handleCreate = () => {
-    const promise = create({
-      title: "New Blog",
-    }).then((documentId) => {
-      router.push(`/dashboard/${documentId}`);
-    });
+  const handleCreate = async () => {
+    const promise = actions.blog
+      .create({
+        title: "New Blog",
+        authorId: "1",
+      })
+      .then((blogId) => {
+        router.push(`/dashboard/${blogId}`);
+      });
 
     toast.promise(promise, {
       loading: "Creating a new blog...",
@@ -147,7 +150,7 @@ export const Navigation = () => {
       <aside
         ref={sidebarRef}
         className={cn(
-          "group/sidebar h-full dark:bg-[#181717] bg-secondary overflow-y-auto relative flex w-60 flex-col z-[99999] border-r border-r-secondary",
+          "group/sidebar h-full dark:bg-[#181717] bg-secondary overflow-y-auto relative flex w-60 flex-col z-[50] border-r border-r-secondary",
           isResetting && "transition-all ease-in-out duration-300",
           isMobile && "w-0"
         )}
@@ -157,7 +160,7 @@ export const Navigation = () => {
             onClick={collapse}
             role="button"
             className={cn(
-              "hidden h-6 w-6 mr-2 text-muted-foreground absolute top-4 right-3 transition",
+              "hidden h-9 w-9 mr-2 text-muted-foreground absolute top-4 right-3 transition",
               isMobile && "block"
             )}
           />
@@ -167,7 +170,7 @@ export const Navigation = () => {
             {/* Sonnet Title goes here */}
             <Link
               href="/dashboard"
-              className="flex items-center gap-x-2 px-4 py-3"
+              className="flex items-center gap-x-2 px-4 py-3 w-max"
             >
               <p className="text-2xl font-bold shrink-0 logo-text-gradient">
                 Sonnet
@@ -213,29 +216,32 @@ export const Navigation = () => {
               <TrashBox />
             </PopoverContent>
           </Popover>
-          <div className="mt-4">
+          <div className="mt-4 max-h-[calc(100vh-19rem)] overflow-y-hidden">
+            <Workspace
+              onCreate={handleCreate}
+              label="Pinned"
+              isMobile={isMobile}
+              isPinned={true}
+              disappearOnEmpty={true}
+            />
             <Workspace
               onCreate={handleCreate}
               label="Blogs"
               isMobile={isMobile}
-            >
-              <Bloglist />
-              <div className="h-2" />
-            </Workspace>
+            />
           </div>
           <div className="flex-1" />
         </div>
         <UserItem isMobile={isMobile} />
         <div
           onMouseDown={handleMouseDown}
-          onClick={resetWidth}
           className="opacity-0 group-hover/sidebar:opacity-100 transition cursor-ew-resize absolute h-full w-1 bg-primary/10 right-0 top-0"
         />
       </aside>
       <div
         ref={navbarRef}
         className={cn(
-          "absolute top-0 z-[99999] left-60 w-[calc(100%-240px)] flex flex-col items-center",
+          "absolute top-0 z-[51] left-60 w-[calc(100%-240px)] flex flex-col items-center",
           isResetting && "transition-all ease-in-out duration-300",
           isMobile && "left-0 w-full"
         )}

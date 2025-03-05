@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { useMutation } from "convex/react";
@@ -20,15 +19,16 @@ import {
   Plus,
   Share,
   Trash,
+  Pin,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { memo } from "react";
 import { usePublish } from "@/hooks/use-publish";
-
+import { useDexie } from "@/components/providers/dexie-provider";
 interface ItemProps {
-  id?: Id<"blogs">;
+  id?: string;
   documentIcon?: string;
   active?: boolean;
   expanded?: boolean;
@@ -37,9 +37,10 @@ interface ItemProps {
   label: string;
   onClick?: () => void;
   icon: LucideIcon;
-
+  isPinned?: boolean;
   isSearch?: boolean;
   isSettings?: boolean;
+  isMobile?: boolean;
 }
 
 const Item = ({
@@ -54,8 +55,11 @@ const Item = ({
   onExpand,
   expanded,
   isSettings,
+  isPinned,
+  isMobile,
 }: ItemProps) => {
   const router = useRouter();
+  const { actions } = useDexie();
   const create = useMutation(api.blogs.create);
   const archive = useMutation(api.blogs.archive);
   const publish = usePublish();
@@ -66,12 +70,12 @@ const Item = ({
       if (!id) return;
 
       router.push("/dashboard");
-      const promise = archive({ id });
+      const promise = actions.blog.archive(id);
 
       toast.promise(promise, {
         loading: "Moving to trash...",
-        success: "Blog moved to trash!",
-        error: "Failed to archive blog.",
+        success: "Moved to trash!",
+        error: "Failed to move to trash.",
       });
     },
     [archive, id, router]
@@ -90,14 +94,18 @@ const Item = ({
       event.stopPropagation();
       if (!id) return;
 
-      const promise = create({ title: "New Page", parentBlog: id }).then(
-        (documentId) => {
+      const promise = actions.blog
+        .create({
+          title: "New Page",
+          authorId: "1",
+          parentBlog: id,
+        })
+        .then((documentId) => {
           if (!expanded) {
             onExpand?.();
           }
           router.push(`/dashboard/${documentId}`);
-        }
-      );
+        });
 
       toast.promise(promise, {
         loading: "Creating a new page...",
@@ -112,6 +120,11 @@ const Item = ({
     publish.onOpen();
   }, [publish]);
 
+  const onPinToggle = useCallback(() => {
+    if (!id) return;
+    const promise = actions.blog.setPinned(id, !isPinned);
+  }, []);
+
   const ChevronIcon = expanded ? ChevronDown : ChevronRight;
 
   // Memoize the context menu component
@@ -120,10 +133,14 @@ const Item = ({
       <Item.ContextMenu
         onArchive={onArchive}
         onPublish={onPublish}
+        onPinToggle={onPinToggle}
         label={label}
+        isPinned={isPinned ?? false}
+        isMobile={isMobile ?? false}
+        level={level}
       />
     ),
-    [onArchive, label, onPublish]
+    [onArchive, label, onPublish, isPinned, isMobile]
   );
 
   return (
@@ -167,7 +184,10 @@ const Item = ({
           <div
             role="button"
             onClick={onCreate}
-            className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+            className={cn(
+              "opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600",
+              isMobile && "opacity-100"
+            )}
           >
             <Plus className="h-4 w-4 text-muted-foreground" />
           </div>
@@ -180,18 +200,29 @@ const Item = ({
 Item.ContextMenu = memo(function ItemContextMenu({
   onArchive,
   onPublish,
+  onPinToggle,
   label,
+  isPinned,
+  isMobile,
+  level,
 }: {
   onArchive: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onPublish: () => void;
+  onPinToggle: () => void;
   label: string;
+  isPinned: boolean;
+  isMobile: boolean;
+  level: number;
 }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger onClick={(e) => e.stopPropagation()} asChild>
         <div
           role="button"
-          className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+          className={cn(
+            "opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600",
+            isMobile && "opacity-100"
+          )}
         >
           <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
         </div>
@@ -203,6 +234,16 @@ Item.ContextMenu = memo(function ItemContextMenu({
         alignOffset={-12}
         forceMount
       >
+        {level === 0 && (
+          <DropdownMenuItem
+            className="cursor-pointer rounded-lg "
+            onClick={onPinToggle}
+          >
+            <Pin className="h-4 w-4 mr-2 " />
+            {isPinned ? "Unpin" : "Pin"}{" "}
+            <span className="truncate">"{label}"</span>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           className="cursor-pointer rounded-lg "
           onClick={onPublish}
@@ -217,10 +258,6 @@ Item.ContextMenu = memo(function ItemContextMenu({
           <Trash className="h-4 w-4 mr-2 " />
           Delete <span className="truncate">"{label}"</span>
         </DropdownMenuItem>
-        {/* <DropdownMenuSeparator />
-              <div className="text-xs text-muted-foreground p-2">
-                Last Edited by: {user?.fullName}
-              </div> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

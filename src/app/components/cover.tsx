@@ -2,46 +2,58 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
-import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useCoverImage } from "@/hooks/use-cover-image";
 import ConfirmModal from "@/components/modals/confirm-modal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useDexie } from "@/components/providers/dexie-provider";
+
+import { useLiveQuery } from "dexie-react-hooks";
+
 interface CoverImageProps {
-  url?: string;
   preview?: boolean;
 }
 
-export const Cover = ({ url, preview }: CoverImageProps) => {
-  const coverImage = useCoverImage();
-  const removeCoverImage = useMutation(api.blogs.removeCoverImage);
+export const Cover = ({ preview }: CoverImageProps) => {
+  const { actions, db } = useDexie();
   const params = useParams();
+  const blogId = params.blogId as string;
+  const blog = useLiveQuery(async () => {
+    return await db.blogs.where("blogId").equals(blogId).first();
+  }, [blogId]);
+  const coverImage = useCoverImage();
 
   const onRemove = () => {
-    removeCoverImage({ id: params.blogId as Id<"blogs"> });
+    actions.blog.removeCoverImage(blog?.blogId as string);
   };
 
   return (
     <div
       className={cn(
         "relative w-full h-[23vh] group mt-11",
-        !url && "h-[5vh]",
-        url && "bg-muted",
-        preview && "mt-0"
+        !blog?.coverImage && "h-[5vh]",
+        blog?.coverImage && "bg-muted",
+        preview && "mt-0",
+        blog?.isArchived === 1 && "mt-[5.85rem]"
       )}
     >
-      {!!url && <Image src={url} fill alt="Cover" className="object-cover" />}
-      {url && !preview && (
+      {!!blog?.coverImage && (
+        <Image
+          src={blog?.coverImage as string}
+          fill
+          alt="Cover"
+          className="object-cover"
+        />
+      )}
+      {blog?.coverImage && !preview && (
         <div className="opacity-0 group-hover:opacity-100 transition absolute bottom-5 right-5 flex items-center gap-x-2">
           <Button
             className="text-muted-foreground text-xs bg-[#181717] border-none"
             variant="outline"
             size="sm"
-            onClick={() => coverImage.onReplace(url)}
+            onClick={() => coverImage.onReplace(blog?.coverImage as string)}
           >
             <Trash className="h-4 w-4 mr-2" />
             Change Cover
