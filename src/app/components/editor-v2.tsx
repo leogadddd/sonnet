@@ -63,17 +63,6 @@ const TailwindAdvancedEditor = ({
   const [openLink, setOpenLink] = useState(false);
   const [openAI, setOpenAI] = useState(false);
 
-  //Apply Codeblock Highlighting on the HTML from editor.getHTML()
-  const highlightCodeblocks = (content: string) => {
-    const doc = new DOMParser().parseFromString(content, "text/html");
-    doc.querySelectorAll("pre code").forEach((el) => {
-      // @ts-ignore
-      // https://highlightjs.readthedocs.io/en/latest/api.html?highlight=highlightElement#highlightelement
-      hljs.highlightElement(el);
-    });
-    return new XMLSerializer().serializeToString(doc);
-  };
-
   const debouncedUpdates = useDebouncedCallback(
     async (editor: EditorInstance) => {
       const json = editor.getJSON();
@@ -93,12 +82,14 @@ const TailwindAdvancedEditor = ({
 
   useEffect(() => {
     if (editor) {
-      editor.commands.setContent(initialContent);
+      editor.commands.setContent(
+        initialContent ? JSON.parse(initialContent) : null
+      );
     }
   }, [editor]);
 
   return (
-    <div className="relative w-full max-w-screen-lg">
+    <div className="relative w-full max-w-screen-lg min-w-fit">
       <EditorRoot>
         <EditorContent
           initialContent={content ?? undefined}
@@ -109,7 +100,7 @@ const TailwindAdvancedEditor = ({
           }}
           className={cn(
             poppins.className,
-            "relative min-h-[500px] w-full max-w-screen-lg sm:mb-[calc(20vh)]"
+            "relative min-h-[500px] w-full max-w-screen-lg sm:mb-[calc(20vh)] min-w-fit"
           )}
           editorProps={{
             handleDOMEvents: {

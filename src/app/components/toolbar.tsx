@@ -127,7 +127,7 @@ Toolbar.Title = function Title({
       ) : (
         <div
           onClick={enableInput}
-          className="pb-[9px] text-5xl font-bold break-words outline-none text-[#3f3f3f] dark:text-[#cfcfcf]"
+          className="min-w-fit pb-[9px] text-5xl font-bold break-words outline-none text-[#3f3f3f] dark:text-[#cfcfcf]"
         >
           {initialData}
         </div>
@@ -190,7 +190,7 @@ Toolbar.Description = function Description({
         <div
           onClick={preview ? undefined : enableInput}
           className={cn(
-            "text-muted-foreground/40 text-base pb-[1px] pt-2 w-full",
+            "min-w-fit text-muted-foreground/40 text-base pb-[1px] pt-2 w-full",
             preview && "cursor-default"
           )}
         >

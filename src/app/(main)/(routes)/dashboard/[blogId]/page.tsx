@@ -19,7 +19,7 @@ const BlogsPageEditor = () => {
   }, [blogId]);
 
   const Editor = useMemo(
-    () => dynamic(() => import("@/components/editor-v2"), { ssr: true }),
+    () => dynamic(() => import("@/components/editor-v2"), { ssr: false }),
     []
   );
 
