@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { Navigation } from "@/components/navigation";
 import { SearchCommand } from "../components/search-command";
 
+import "@/styles/prose-mirror.css";
+
 const MainLayout = ({
   children,
 }: Readonly<{

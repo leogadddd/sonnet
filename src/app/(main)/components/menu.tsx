@@ -51,13 +51,7 @@ const Menu = ({ initialData }: MenuProps) => {
   // takes in a boolean and returns a promise
   const onLockToggle = React.useCallback(
     (isLocked: boolean) => {
-      const promise = actions.blog.setPreview(initialData.blogId, isLocked);
-
-      toast.promise(promise, {
-        loading: "Locking blog...",
-        success: "Blog locked",
-        error: "Failed to lock blog",
-      });
+      actions.blog.setPreview(initialData.blogId, isLocked);
     },
     [initialData]
   );
