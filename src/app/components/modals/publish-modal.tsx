@@ -31,7 +31,7 @@ export const PublishModal = () => {
       return null;
     }
 
-    return await db.blogs.where("blogId").equals(blogId).first();
+    return await db.blogs.where("blog_id").equals(blogId).first();
   }, [blogId]);
 
   const origin = useOrigin();
@@ -46,7 +46,7 @@ export const PublishModal = () => {
       try {
         setIsLoading(true);
         actions.blog.update(blogId, {
-          isOnExplore: checked ? 1 : 0,
+          is_on_explore: checked ? 1 : 0,
         });
       } catch (error) {
         toast.error("Failed to update blog");
@@ -105,7 +105,7 @@ export const PublishModal = () => {
   }, [blogId, origin]);
 
   const handlePublish = React.useCallback(() => {
-    if (blog?.isPublished === 1) {
+    if (blog?.is_published === 1) {
       unpublishBlog();
     } else {
       publishBlog();
@@ -127,7 +127,7 @@ export const PublishModal = () => {
             <div className="flex flex-col gap-y-1">
               <Label>Status</Label>
               <span className="text-[0.8rem] text-muted-foreground">
-                {blog?.isPublished === 1
+                {blog?.is_published === 1
                   ? "This blog is currently published"
                   : "This blog is currently in draft"}
               </span>
@@ -135,14 +135,14 @@ export const PublishModal = () => {
             <div
               className={cn(
                 "flex items-center gap-x-2 rounded-md bg-muted p-1 px-2",
-                blog?.isPublished === 1 && "bg-sky-800"
+                blog?.is_published === 1 && "bg-sky-800"
               )}
             >
-              {blog?.isPublished === 1 ? (
+              {blog?.is_published === 1 ? (
                 <Globe
                   className={cn(
                     "h-4 w-4 text-muted-foreground",
-                    blog?.isPublished === 1 && "text-blue-400"
+                    blog?.is_published === 1 && "text-blue-400"
                   )}
                 />
               ) : (
@@ -151,15 +151,15 @@ export const PublishModal = () => {
               <span
                 className={cn(
                   "text-sm text-muted-foreground",
-                  blog?.isPublished === 1 && "text-blue-400"
+                  blog?.is_published === 1 && "text-blue-400"
                 )}
               >
-                {blog?.isPublished === 1 ? "Published" : "Draft"}
+                {blog?.is_published === 1 ? "Published" : "Draft"}
               </span>
             </div>
           </div>
         </div>
-        {blog?.isPublished === 1 && (
+        {blog?.is_published === 1 && (
           <div className="p-2 flex flex-col gap-y-2 rounded-lg border border-dashed border-muted-foreground/25">
             <div className="flex items-center gap-x-2">
               <Input
@@ -206,7 +206,7 @@ export const PublishModal = () => {
             </div>
             <Switch
               id="airplane-mode"
-              checked={blog?.isOnExplore === 1}
+              checked={blog?.is_on_explore === 1}
               onCheckedChange={showOnExpore}
             />
           </div>
@@ -215,7 +215,7 @@ export const PublishModal = () => {
           size={"lg"}
           className={cn(
             "w-full mt-6 rounded-lg",
-            blog?.isPublished === 1 &&
+            blog?.is_published === 1 &&
               "bg-muted/50 text-muted-foreground hover:bg-muted rounded-lg"
           )}
           onClick={handlePublish}
@@ -223,7 +223,7 @@ export const PublishModal = () => {
         >
           {isLoading
             ? "Publishing..."
-            : blog?.isPublished === 1
+            : blog?.is_published === 1
               ? "Unpublish"
               : "Publish"}
         </Button>

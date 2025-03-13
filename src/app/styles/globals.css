@@ -20,6 +20,10 @@ body,
   height: 100%;
 }
 
+/* * {
+  outline: 1px solid red;
+} */
+
 @layer base {
   :root {
     --background: 0 0% 98%;

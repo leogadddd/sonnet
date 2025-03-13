@@ -37,7 +37,7 @@ const Menu = ({ initialData }: MenuProps) => {
   const menu = useMenu();
 
   const onArchive = React.useCallback(() => {
-    const promise = actions.blog.archive(initialData.blogId);
+    const promise = actions.blog.archive(initialData.blog_id);
 
     toast.promise(promise, {
       loading: "Moving to trash...",
@@ -51,14 +51,14 @@ const Menu = ({ initialData }: MenuProps) => {
   // takes in a boolean and returns a promise
   const onLockToggle = React.useCallback(
     (isLocked: boolean) => {
-      actions.blog.setPreview(initialData.blogId, isLocked);
+      actions.blog.setPreview(initialData.blog_id, isLocked);
     },
     [initialData]
   );
 
   const onPinToggle = React.useCallback(async () => {
     menu.toggle();
-    await actions.blog.setPinned(initialData.blogId, !initialData.isPinned);
+    await actions.blog.setPinned(initialData.blog_id, !initialData.is_pinned);
   }, [initialData, menu]);
 
   if (initialData === undefined) {
@@ -72,13 +72,13 @@ const Menu = ({ initialData }: MenuProps) => {
   const menuContent = React.useMemo(
     () => (
       <PopoverContent
-        className="p-1 w-60 flex flex-col gap-y-1 bg-background dark:bg-[#181717] drop-shadow-md rounded-xl"
+        className="p-1 w-60 flex flex-col gap-y-1 bg-background dark:bg-[#181717] rounded-xl"
         align="end"
         forceMount
       >
         <div className="flex items-center justify-between gap-x-2 w-full p-1 px-2 py-2">
           <Label className="flex items-center gap-x-2">
-            {initialData.isPreview !== 1 ? (
+            {initialData.is_preview !== 1 ? (
               <>
                 <LockIcon className="h-4 w-4 mr-2" />
                 Lock Blog
@@ -91,7 +91,7 @@ const Menu = ({ initialData }: MenuProps) => {
             )}
           </Label>
           <Switch
-            checked={initialData.isPreview === 1}
+            checked={initialData.is_preview === 1}
             onCheckedChange={onLockToggle}
             className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
           />
@@ -101,7 +101,7 @@ const Menu = ({ initialData }: MenuProps) => {
           onClick={onPinToggle}
         >
           <Pin className="h-4 w-4 mr-2 " />
-          {initialData.isPinned === 1 ? "Unpin" : "Pin"}
+          {initialData.is_pinned === 1 ? "Unpin" : "Pin"}
         </div>
         <div
           className="cursor-pointer rounded-lg flex items-center gap-x-2 w-full p-1 px-2 hover:bg-muted"

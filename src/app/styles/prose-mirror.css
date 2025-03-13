@@ -3,7 +3,7 @@
 }
 
 .ProseMirror .is-editor-empty:first-child::before {
-  @apply text-muted-foreground/60;
+  @apply text-muted-foreground/40;
   content: attr(data-placeholder);
   float: left;
   pointer-events: none;
@@ -12,7 +12,7 @@
 .ProseMirror .is-empty::before {
   content: attr(data-placeholder);
   float: left;
-  color: hsl(var(--muted-foreground));
+  @apply text-muted-foreground/40;
   pointer-events: none;
   height: 0;
 }

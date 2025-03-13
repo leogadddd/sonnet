@@ -20,7 +20,10 @@ export const TrashBox = () => {
   const { actions, db } = useDexie();
 
   const archivedBlogs = useLiveQuery(async () => {
-    return await db.blogs.where("isArchived").equals(1).toArray();
+    return await db.blogs
+      .where(["is_archived", "deleted_at"])
+      .equals([1, 0])
+      .toArray();
   });
 
   const [search, setSearch] = useState("");
@@ -35,7 +38,7 @@ export const TrashBox = () => {
 
   const onClick = useCallback(
     (blog: Blog) => {
-      router.push(`/dashboard/${blog.blogId}`);
+      router.push(`/dashboard/${blog.blog_id}`);
     },
     [router]
   );
@@ -60,8 +63,8 @@ export const TrashBox = () => {
 
       toast.promise(promise, {
         loading: "Deleting blog...",
-        success: "Blog restored!",
-        error: "Failed to remove blog.",
+        success: "Blog deleted!",
+        error: "Failed to delete blog.",
       });
 
       if (params.blogId === blogId) {
@@ -126,7 +129,7 @@ export const TrashBox = () => {
         </p>
         {filteredBlogs?.map((blog) => (
           <TrashBox.Item
-            key={blog.blogId}
+            key={blog.blog_id}
             blog={blog}
             onClick={() => onClick(blog)}
             onRestore={onRestore}
@@ -166,12 +169,12 @@ TrashBox.Item = memo(
   ({ blog, onClick, onRestore, onRemove }: TrashBoxItemProps) => {
     return (
       <div
-        key={blog.blogId}
+        key={blog.blog_id}
         className="text-sm w-full rounded-lg hover:bg-primary/5 flex items-center text-primary justify-between px-2 py-1"
       >
         <div
           role="button"
-          onClick={() => onClick(blog.blogId)}
+          onClick={() => onClick(blog.blog_id)}
           className="flex items-center gap-x-1 w-full mr-4"
         >
           {blog.icon && (
@@ -181,13 +184,13 @@ TrashBox.Item = memo(
         </div>
         <div className="flex items-center gap-x-2">
           <div
-            onClick={(e) => onRestore(e, blog.blogId)}
+            onClick={(e) => onRestore(e, blog.blog_id)}
             role={"button"}
             className="h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
           >
             <Undo className="h-4 w-4 text-muted-foreground" />
           </div>
-          <ConfirmModal onConfirm={() => onRemove(blog.blogId)}>
+          <ConfirmModal onConfirm={() => onRemove(blog.blog_id)}>
             <div
               role={"button"}
               className="h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"

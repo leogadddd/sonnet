@@ -44,7 +44,7 @@ export const CoverImageModal = () => {
       });
 
       await actions.blog.update(params.blogId as string, {
-        coverImage: res.url,
+        cover_image: res.url,
       });
 
       onClose();

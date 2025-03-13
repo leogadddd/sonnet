@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDate, TimeFormatter } from "@/lib/utils";
 import {
   MenuIcon,
   Plus,
@@ -17,7 +17,6 @@ import { useMediaQuery } from "usehooks-ts";
 import UserItem from "@/components/user-item";
 import Item from "@/components/item";
 import { toast } from "sonner";
-import Bloglist from "@/app/(main)/components/blog-list";
 
 import {
   Popover,
@@ -32,7 +31,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Workspace from "@/components/workspace";
 
-import { useDexie } from "@/app/components/providers/dexie-provider";
+import { useDexie } from "@/components/providers/dexie-provider";
+import useUser from "@/hooks/use-user";
+import SyncButton from "@/app/components/syncbutton";
 
 export const Navigation = () => {
   const router = useRouter();
@@ -40,6 +41,7 @@ export const Navigation = () => {
   const search = useSearch();
   const params = useParams();
   const pathname = usePathname();
+  const { user } = useUser();
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   const { actions } = useDexie();
@@ -129,10 +131,13 @@ export const Navigation = () => {
   };
 
   const handleCreate = async () => {
+    if (!user?.clerkId)
+      return toast.error("User not found. Please sign in again.");
+
     const promise = actions.blog
       .create({
         title: "New Blog",
-        authorId: "1",
+        authorId: user?.clerkId || "",
       })
       .then((blogId) => {
         router.push(`/dashboard/${blogId}`);
@@ -167,15 +172,16 @@ export const Navigation = () => {
         )}
         <div className="flex flex-col justify-between h-full">
           <div className="flex flex-col">
-            {/* Sonnet Title goes here */}
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-x-2 px-4 py-3 w-max"
-            >
-              <p className="text-2xl font-bold shrink-0 logo-text-gradient">
-                Sonnet
-              </p>
-            </Link>
+            <div className="flex items-center">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-x-2 px-4 py-3 w-max"
+              >
+                <p className="text-2xl font-bold shrink-0 logo-text-gradient">
+                  Sonnet
+                </p>
+              </Link>
+            </div>
             <Item
               label="Explore"
               icon={Telescope}
@@ -232,6 +238,7 @@ export const Navigation = () => {
           </div>
           <div className="flex-1" />
         </div>
+        {/* <SyncButton /> */}
         <UserItem isMobile={isMobile} />
         <div
           onMouseDown={handleMouseDown}

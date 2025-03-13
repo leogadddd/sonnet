@@ -2,7 +2,7 @@
 
 import { IconPicker } from "@/components/icon-picker";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Smile, X } from "lucide-react";
+import { ImageIcon, Smile, Tag, X } from "lucide-react";
 import { ComponentRef, useRef, useState, useMemo } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { useCoverImage } from "@/hooks/use-cover-image";
@@ -20,25 +20,25 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
   const { actions } = useDexie();
 
   const onIconSelect = (icon: string) => {
-    actions.blog.update(initialData.blogId, {
+    actions.blog.update(initialData.blog_id, {
       icon,
     });
   };
 
   const onRemoveIcon = () => {
-    actions.blog.update(initialData.blogId, {
+    actions.blog.update(initialData.blog_id, {
       icon: "",
     });
   };
 
   const onTitleChange = (title: string) => {
-    actions.blog.update(initialData.blogId, {
+    actions.blog.update(initialData.blog_id, {
       title,
     });
   };
 
   const onDescriptionChange = (description: string) => {
-    actions.blog.update(initialData.blogId, {
+    actions.blog.update(initialData.blog_id, {
       description,
     });
   };
@@ -127,7 +127,7 @@ Toolbar.Title = function Title({
       ) : (
         <div
           onClick={enableInput}
-          className="min-w-fit pb-[9px] text-5xl font-bold break-words outline-none text-[#3f3f3f] dark:text-[#cfcfcf]"
+          className="min-w-fit pb-[10px] text-5xl font-bold break-words outline-none text-[#3f3f3f] dark:text-[#cfcfcf]"
         >
           {initialData}
         </div>
@@ -184,13 +184,13 @@ Toolbar.Description = function Description({
           onBlur={disableInput}
           value={value}
           onChange={(e) => onInput(e.target.value)}
-          className="pt-2 text-muted-foreground break-words outline-none text-base bg-transparent w-full resize-none"
+          className="px-[2px] pt-2 text-muted-foreground break-words outline-none text-base bg-transparent w-full resize-none"
         />
       ) : (
         <div
           onClick={preview ? undefined : enableInput}
           className={cn(
-            "min-w-fit text-muted-foreground/40 text-base pb-[1px] pt-2 w-full",
+            "px-[3px] min-w-fit text-muted-foreground/40 text-base pb-[2px] pt-2 w-full",
             preview && "cursor-default"
           )}
         >
@@ -225,28 +225,32 @@ Toolbar.Icon = function Icon({
   onRemoveIcon: () => void;
 }) {
   return (
-    <>
+    <div className="relative h-14">
       {!!initialData && !preview && (
-        <div className="flex items-center gap-x-2 group/icon pt-6">
-          <IconPicker onChange={onIconSelect}>
-            <p className="text-6xl hover:opacity-75 transition cursor-pointer">
-              {initialData}
-            </p>
-          </IconPicker>
-          <Button
-            onClick={onRemoveIcon}
-            className="rounded-full opacity-0 group-hover/icon:opacity-100 transition text-muted-foreground text-xs"
-            variant={"ghost"}
-            size={"icon"}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+        <div className="items-center gap-x-2 group/icon absolute -top-8 left-0">
+          <div className="flex items-center">
+            <IconPicker onChange={onIconSelect}>
+              <p className="text-6xl hover:opacity-75 transition cursor-pointer">
+                {initialData}
+              </p>
+            </IconPicker>
+            <Button
+              onClick={onRemoveIcon}
+              className="rounded-full opacity-0 group-hover/icon:opacity-100 transition text-muted-foreground text-xs"
+              variant={"ghost"}
+              size={"icon"}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
       {!!initialData && preview && (
-        <p className="text-6xl pt-6">{initialData}</p>
+        <div className="items-center gap-x-2 group/icon absolute -top-8 left-0">
+          <p className="text-6xl">{initialData}</p>
+        </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -262,7 +266,12 @@ Toolbar.Bar = function Bar({
   coverImageOnOpen: () => void;
 }) {
   return (
-    <div className="opacity-0 group-hover:opacity-100 flex items-center gap-x-1 py-4">
+    <div
+      className={cn(
+        "opacity-0 group-hover:opacity-100 flex items-center gap-x-1",
+        preview && "py-0"
+      )}
+    >
       {!initialData.icon && !preview && (
         <IconPicker onChange={onIconSelect} asChild>
           <Button
@@ -275,7 +284,7 @@ Toolbar.Bar = function Bar({
           </Button>
         </IconPicker>
       )}
-      {!initialData.coverImage && !preview && (
+      {!initialData.cover_image && !preview && (
         <Button
           className="text-muted-foreground/40 text-xs "
           variant={"ghost"}
@@ -286,6 +295,17 @@ Toolbar.Bar = function Bar({
           add cover
         </Button>
       )}
+      {/* {initialData.tags.length === 0 && !preview && (
+        <Button
+          className="text-muted-foreground/40 text-xs "
+          variant={"ghost"}
+          size={"sm"}
+          onClick={coverImageOnOpen}
+        >
+          <Tag className="h-4 w-4 mr-2" />
+          add tags
+        </Button>
+      )} */}
     </div>
   );
 };

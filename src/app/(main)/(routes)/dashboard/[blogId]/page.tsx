@@ -13,7 +13,7 @@ const BlogsPageEditor = () => {
   const { blogId } = params;
   const blog = useLiveQuery(async () => {
     return await db.blogs
-      .where("blogId")
+      .where("blog_id")
       .equals(blogId as string)
       .first();
   }, [blogId]);
@@ -27,7 +27,7 @@ const BlogsPageEditor = () => {
 
   const onChange = useMemo(() => {
     return (value: string) => {
-      actions.blog.update(blog?.blogId as string, {
+      actions.blog.update(blog?.blog_id as string, {
         content: value,
       });
     };
@@ -43,11 +43,11 @@ const BlogsPageEditor = () => {
 
   return (
     <div className="">
-      <Cover preview={blog?.isPreview === 1} />
+      <Cover preview={blog?.is_preview === 1} />
       <div className="mx-auto max-w-md lg:max-w-6xl md:max-w-4xl md:px-24">
-        <Toolbar initialData={blog} preview={blog?.isPreview === 1} />
+        <Toolbar initialData={blog} preview={blog?.is_preview === 1} />
         <Editor
-          editable={blog?.isPreview !== 1}
+          editable={blog?.is_preview !== 1}
           onChange={onChange}
           initialContent={blog?.content ?? ""}
         />

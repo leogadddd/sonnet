@@ -1,19 +1,16 @@
-// Friend.ts
-
 import { Entity } from "dexie";
 import type SonnetDB from "./SonnetDB";
 
 export default class Blog extends Entity<SonnetDB> {
-  id!: number;
-  blogId!: string;
+  blog_id!: string;
   title!: string;
   slug!: string;
-  authorId!: string;
-  parentBlog!: string;
+  author_id!: string;
+  parent_blog!: string | null;
 
   description!: string;
   content!: string;
-  coverImage!: string;
+  cover_image!: string;
   icon!: string;
 
   tags!: string[];
@@ -22,14 +19,16 @@ export default class Blog extends Entity<SonnetDB> {
   comments!: number;
   shares!: number;
 
-  isPinned!: number;
-  isFeatured!: number;
-  isPublished!: number;
-  isArchived!: number;
-  isPreview!: number;
-  isOnExplore!: number;
+  is_pinned!: number;
+  is_featured!: number;
+  is_published!: number;
+  is_archived!: number;
+  is_preview!: number;
+  is_on_explore!: number;
 
-  publishedAt!: number;
-  createdAt!: number;
-  updatedAt!: number;
+  published_at!: number;
+  created_at!: number;
+  updated_at!: number;
+  deleted_at!: number;
+  synced_at!: number;
 }

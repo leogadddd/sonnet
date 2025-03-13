@@ -29,8 +29,7 @@ import { TextButtons } from "./novel/selectors/text-buttons";
 import { slashCommand, suggestionItems } from "./novel/slash-command";
 import { Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
-
-const hljs = require("highlight.js");
+import { useEditor } from "@/hooks/use-editor";
 
 const poppins = Poppins({
   subsets: ["latin"], // Ensures support for Latin characters
@@ -51,12 +50,12 @@ const TailwindAdvancedEditor = ({
   initialContent,
   onChange,
 }: EditorV2Props) => {
+  const { saveStatus, setSaveStatus, characterCount, setCharacterCount } =
+    useEditor();
   const [content, setContent] = useState<JSONContent | null>(
     initialContent ? JSON.parse(initialContent) : null
   );
   const [editor, setEditor] = useState<EditorInstance | undefined>(undefined);
-  const [saveStatus, setSaveStatus] = useState("Saved");
-  const [charsCount, setCharsCount] = useState();
 
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
@@ -66,9 +65,9 @@ const TailwindAdvancedEditor = ({
   const debouncedUpdates = useDebouncedCallback(
     async (editor: EditorInstance) => {
       const json = editor.getJSON();
-      setCharsCount(editor.storage.characterCount.words());
+      setCharacterCount(editor.storage.characterCount.words());
       onChange(JSON.stringify(json));
-      setSaveStatus("Saved");
+      setSaveStatus("saved");
     },
     500
   );
@@ -117,11 +116,11 @@ const TailwindAdvancedEditor = ({
           }}
           onUpdate={({ editor }) => {
             debouncedUpdates(editor);
-            setSaveStatus("Unsaved");
+            setSaveStatus("unsaved");
           }}
           slotAfter={<ImageResizer />}
         >
-          <EditorCommand className="z-[99999] h-auto max-h-[330px] w-[300px] overflow-y-auto rounded-lg border border-muted bg-[#181717] p-2 pr-3 transition-all">
+          <EditorCommand className="z-[99999] h-auto max-h-[330px] w-[300px] overflow-y-auto rounded-lg bg-background dark:bg-[#181717] border border-text-muted dark:border-secondary p-2 pr-3 transition-all">
             <EditorCommandEmpty className="px-2 text-muted-foreground">
               No results
             </EditorCommandEmpty>

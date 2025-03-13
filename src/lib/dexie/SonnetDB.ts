@@ -3,13 +3,13 @@ import Dexie, { type EntityTable } from "dexie";
 import Blog from "./blog";
 
 export default class SonnetDB extends Dexie {
-  blogs!: EntityTable<Blog, "id">;
+  blogs!: EntityTable<Blog, "blog_id">;
 
   constructor() {
     super("SonnetDB");
     this.version(1).stores({
       blogs:
-        "++id, blogId, [isPinned+isArchived+parentBlog], isPreview, isArchived, parentBlog",
+        "blog_id, [is_pinned+is_archived+parent_blog], is_preview, is_archived, parent_blog, [is_archived+deleted_at], updated_at",
     });
     this.blogs.mapToClass(Blog);
   }
