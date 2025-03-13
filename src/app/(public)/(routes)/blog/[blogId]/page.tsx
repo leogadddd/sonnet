@@ -10,7 +10,7 @@ import Blog from "@/lib/dexie/blog";
 import { createClient } from "@/lib/supabase/client";
 
 const BlogsPageViewer = () => {
-  const [blog, setBlog] = React.useState<Blog | null | undefined>(null);
+  const [blog, setBlog] = React.useState<Blog | null | undefined>(undefined);
   const params = useParams();
   const { blogId } = params;
 
@@ -47,18 +47,18 @@ const BlogsPageViewer = () => {
   );
 
   if (blog === undefined) {
-    return <div></div>;
+    <div>Loading...</div>;
   }
 
-  if (blog === null || blog === undefined) {
-    return <div>Not found</div>;
+  if (blog === null) {
+    <div>Not Found</div>;
   }
 
   return (
     <div className="">
-      <Cover preview={true} initialData={blog} />
+      {blog && <Cover preview={true} initialData={blog} />}
       <div className="mx-auto max-w-md lg:max-w-6xl md:max-w-4xl md:px-24">
-        <Toolbar initialData={blog} preview={true} />
+        {blog && <Toolbar initialData={blog} preview={true} />}
         <Editor
           editable={false}
           onChange={() => {}}
