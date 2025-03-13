@@ -10,50 +10,48 @@ import ConfirmModal from "@/components/modals/confirm-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDexie } from "@/components/providers/dexie-provider";
 
-import { useLiveQuery } from "dexie-react-hooks";
+import Blog from "@/lib/dexie/blog";
 
 interface CoverImageProps {
   preview?: boolean;
+  initialData: Blog;
 }
 
-export const Cover = ({ preview }: CoverImageProps) => {
-  const { actions, db } = useDexie();
-  const params = useParams();
-  const blogId = params.blogId as string;
-  const blog = useLiveQuery(async () => {
-    return await db.blogs.where("blog_id").equals(blogId).first();
-  }, [blogId]);
+export const Cover = ({ preview, initialData }: CoverImageProps) => {
+  const { actions } = useDexie();
   const coverImage = useCoverImage();
 
   const onRemove = () => {
-    actions.blog.removeCoverImage(blog?.blog_id as string);
+    actions.blog.removeCoverImage(initialData?.blog_id as string);
   };
 
   return (
     <div
       className={cn(
         "relative w-full h-[23vh] group mt-11",
-        !blog?.cover_image && "h-[5vh]",
-        blog?.cover_image && "bg-muted",
+        !initialData?.cover_image && "h-[5vh]",
+        initialData?.cover_image && "bg-muted",
         preview && "mt-0",
-        blog?.is_archived === 1 && "mt-[5.85rem]"
+        initialData?.is_archived === 1 && "mt-[5.85rem]"
       )}
     >
-      {!!blog?.cover_image && (
+      {!!initialData?.cover_image && (
         <Image
-          src={blog?.cover_image as string}
+          src={initialData?.cover_image as string}
           fill
           alt="Cover"
           className="object-cover"
         />
       )}
-      {blog?.cover_image && !preview && (
+      {initialData?.cover_image && !preview && (
         <div className="opacity-0 group-hover:opacity-100 transition absolute bottom-5 right-5 flex items-center gap-x-2">
           <Button
             className="text-muted-foreground text-xs bg-[#181717] border-none"
             variant="outline"
             size="sm"
-            onClick={() => coverImage.onReplace(blog?.cover_image as string)}
+            onClick={() =>
+              coverImage.onReplace(initialData?.cover_image as string)
+            }
           >
             <ImageIcon className="h-4 w-4 mr-2" />
             Change Cover

@@ -43,7 +43,7 @@ const BlogsPageEditor = () => {
 
   return (
     <div className="">
-      <Cover preview={blog?.is_preview === 1} />
+      <Cover preview={blog?.is_preview === 1} initialData={blog} />
       <div className="mx-auto max-w-md lg:max-w-6xl md:max-w-4xl md:px-24">
         <Toolbar initialData={blog} preview={blog?.is_preview === 1} />
         <Editor

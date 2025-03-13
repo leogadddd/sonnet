@@ -56,7 +56,7 @@ const BlogsPageViewer = () => {
 
   return (
     <div className="">
-      <Cover preview={true} />
+      <Cover preview={true} initialData={blog} />
       <div className="mx-auto max-w-md lg:max-w-6xl md:max-w-4xl md:px-24">
         <Toolbar initialData={blog} preview={true} />
         <Editor
