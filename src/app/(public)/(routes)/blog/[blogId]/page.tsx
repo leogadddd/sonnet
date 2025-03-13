@@ -5,29 +5,46 @@ import { useParams } from "next/navigation";
 import { Toolbar } from "@/components/toolbar";
 import { Cover } from "@/components/cover";
 import dynamic from "next/dynamic";
-import { useDexie } from "@/components/providers/dexie-provider";
-import { useLiveQuery } from "dexie-react-hooks";
+
+import Blog from "@/lib/dexie/blog";
+import { createClient } from "@/lib/supabase/client";
 
 const BlogsPageViewer = () => {
+  const [blog, setBlog] = React.useState<Blog | null | undefined>(null);
   const params = useParams();
   const { blogId } = params;
-  const blog = useLiveQuery(async () => {
-    return await db.blogs
-      .where("blogId")
-      .equals(blogId as string)
-      .first();
+
+  useEffect(() => {
+    if (!blogId) {
+      return;
+    }
+
+    const fetchBlogs = async () => {
+      const client = createClient();
+      const { data, error } = await client
+        .from("blogs")
+        .select("*")
+        .eq("blog_id", blogId)
+        .eq("is_published", true)
+        .eq("is_archived", false)
+        .eq("deleted_at", 0)
+        .eq("is_on_explore", true);
+
+      if (error) {
+        console.error(error);
+        return;
+      } else {
+        setBlog(data[0]);
+      }
+    };
+
+    fetchBlogs();
   }, [blogId]);
 
   const Editor = useMemo(
     () => dynamic(() => import("@/components/editor-v2"), { ssr: false }),
     []
   );
-
-  const { db } = useDexie();
-
-  const onChange = useMemo(() => {
-    return (value: string) => {};
-  }, [blog]);
 
   if (blog === undefined) {
     return <div></div>;
@@ -44,7 +61,7 @@ const BlogsPageViewer = () => {
         <Toolbar initialData={blog} preview={true} />
         <Editor
           editable={false}
-          onChange={onChange}
+          onChange={() => {}}
           initialContent={blog?.content ?? ""}
         />
       </div>

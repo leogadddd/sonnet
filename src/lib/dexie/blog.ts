@@ -18,6 +18,7 @@ export default class Blog extends Entity<SonnetDB> {
   views!: number;
   comments!: number;
   shares!: number;
+  read_time!: number;
 
   is_pinned!: number;
   is_featured!: number;

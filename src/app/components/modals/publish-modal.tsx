@@ -20,10 +20,13 @@ import { Input } from "@/components/ui/input";
 import { useOrigin } from "@/hooks/use-origin";
 import { useDexie } from "@/components/providers/dexie-provider";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useSync } from "../providers/sync-provider";
 
 export const PublishModal = () => {
   const params = useParams();
   const blogId = params.blogId as string;
+
+  const { syncSingleBlog } = useSync();
 
   const { actions, db } = useDexie();
   const blog = useLiveQuery(async () => {
@@ -61,6 +64,7 @@ export const PublishModal = () => {
     try {
       setIsLoading(true);
       actions.blog.publish(blogId);
+      await syncSingleBlog(blogId);
       toast.success("Blog published");
     } catch (error) {
       toast.error("Failed to publish blog");
@@ -73,6 +77,7 @@ export const PublishModal = () => {
     try {
       setIsLoading(true);
       actions.blog.unpublish(blogId);
+      await syncSingleBlog(blogId);
       toast.success("Blog unpublished");
     } catch (error) {
       toast.error("Failed to unpublish blog");
@@ -208,6 +213,7 @@ export const PublishModal = () => {
               id="airplane-mode"
               checked={blog?.is_on_explore === 1}
               onCheckedChange={showOnExpore}
+              disabled={blog?.is_published === 1}
             />
           </div>
         </div>

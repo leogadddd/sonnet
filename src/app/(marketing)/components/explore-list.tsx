@@ -41,7 +41,7 @@ const ExploreList = () => {
 };
 
 const ExploreItem = React.memo(({ blog }: { blog: Doc<"blogs"> }) => {
-  const user = useQuery(api.users.getByClerkId, {
+  const user = useQuery(api.users., {
     clerkId: blog.authorId,
   });
 
