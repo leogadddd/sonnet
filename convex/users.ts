@@ -60,19 +60,25 @@ export const update = mutation({
       lastName: v.optional(v.string()),
       imageUrl: v.optional(v.string()),
       username: v.optional(v.string()),
-      currentPlan: v.optional(v.object({
-        currentPlan: v.optional(v.string()),
-        isPro: v.optional(v.boolean()),
-      })),
-      userMeta: v.optional(v.object({
-        isVerified: v.optional(v.boolean()),
-        isBanned: v.optional(v.boolean()),
-        isDeleted: v.optional(v.boolean()),
-        deletedAt: v.optional(v.number()),
-      })),
-      options: v.optional(v.object({
-        isDarkMode: v.optional(v.boolean()),
-      })),
+      currentPlan: v.optional(
+        v.object({
+          currentPlan: v.optional(v.string()),
+          isPro: v.optional(v.boolean()),
+        })
+      ),
+      userMeta: v.optional(
+        v.object({
+          isVerified: v.optional(v.boolean()),
+          isBanned: v.optional(v.boolean()),
+          isDeleted: v.optional(v.boolean()),
+          deletedAt: v.optional(v.number()),
+        })
+      ),
+      options: v.optional(
+        v.object({
+          isDarkMode: v.optional(v.boolean()),
+        })
+      ),
     }),
   },
   handler: async (ctx, args) => {
@@ -96,6 +102,10 @@ export const getByClerkId = query({
     clerkId: v.string(),
   },
   handler: async (ctx, args) => {
+    if (!args.clerkId) {
+      return null;
+    }
+
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))

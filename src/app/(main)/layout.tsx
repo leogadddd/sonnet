@@ -3,7 +3,7 @@
 import { useConvexAuth, useQuery } from "convex/react";
 import React, { useEffect } from "react";
 import { Spinner } from "@/components/spinner";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Navigation } from "@/components/navigation";
 import { SearchCommand } from "@/components/search-command";
 import useUser from "@/hooks/use-user";
@@ -11,14 +11,11 @@ import { useSession } from "@clerk/nextjs";
 import "@/styles/prose-mirror.css";
 import { api } from "@/convex/_generated/api";
 
-const MainLayout = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
+const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const { setUser } = useUser();
   const { session } = useSession();
+  const router = useRouter();
 
   const user = useQuery(api.users.getByClerkId, {
     clerkId: session?.user?.id || "",
@@ -28,18 +25,20 @@ const MainLayout = ({
     if (session?.user && user) {
       setUser(user);
     }
-  }, [isAuthenticated, session?.user, user]);
+  }, [session?.user, user, setUser]);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <Spinner size={"lg"} />
+        <Spinner size="lg" />
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return redirect("/");
   }
 
   return (
