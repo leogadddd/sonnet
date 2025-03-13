@@ -1,9 +1,8 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { File, Plus } from "lucide-react";
-import { useQuery, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/clerk-react";
+import useUser from "@/hooks/use-user";
 import {
   CommandDialog,
   CommandEmpty,
@@ -13,16 +12,20 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useSearch } from "@/hooks/use-search";
-import { api } from "@/convex/_generated/api";
 import { DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { toast } from "sonner";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useDexie } from "./providers/dexie-provider";
+import Blog from "@/lib/dexie/blog";
 
 export const SearchCommand = () => {
   const { user } = useUser();
   const router = useRouter();
-  const blogs = useQuery(api.blogs.getSearch);
-  const create = useMutation(api.blogs.create);
+  const { db, actions } = useDexie();
+  const blogs = useLiveQuery(async () => {
+    return await db.blogs.where("deleted_at").equals(0).toArray();
+  }, []) as Blog[] | undefined;
   const [isMounted, setIsMounted] = useState(false);
   const [value, setValue] = useState("");
   const toggle = useSearch((store) => store.toggle);
@@ -49,34 +52,47 @@ export const SearchCommand = () => {
     setValue(text);
   }, []);
 
-  const onSelect = useCallback((id: string) => {
-    const blogId = id.split("-")[0];
-    router.push(`/dashboard/${blogId}`);
-    onClose();
-  }, [router, onClose]);
-
-  const handleOnOpenChange = useCallback((open: boolean) => {
-    if (!open) {
+  const onSelect = useCallback(
+    (id: string) => {
+      const blogId = id.split("~~~")[0];
+      router.push(`/dashboard/${blogId}`);
       onClose();
-    }
+    },
+    [router, onClose]
+  );
 
-    setTimeout(() => {
-      setValue("");
-    }, 300);
-  }, [onClose]);
+  const handleOnOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        onClose();
+      }
+
+      setTimeout(() => {
+        setValue("");
+      }, 300);
+    },
+    [onClose]
+  );
 
   const handleCreateBlog = useCallback(() => {
-    const titlePart = value.includes("-") ? value.split("-")[0].trim() : value.trim();
-    const descriptionPart = value.includes("-") ? value.split("-").slice(1).join("-").trim() : "";
-    
+    const titlePart = value.includes("-")
+      ? value.split("-")[0].trim()
+      : value.trim();
+    const descriptionPart = value.includes("-")
+      ? value.split("-").slice(1).join("-").trim()
+      : "";
+
     if (!titlePart) return;
 
-    const promise = create({
-      title: titlePart,
-      description: descriptionPart,
-    }).then((blogId) => {
-      router.push(`/dashboard/${blogId}`);
-    });
+    const promise = actions.blog
+      .create({
+        title: titlePart,
+        description: descriptionPart,
+        authorId: user?.clerkId || "",
+      })
+      .then((blogId) => {
+        router.push(`/dashboard/${blogId}`);
+      });
 
     toast.promise(promise, {
       loading: "Creating blog...",
@@ -85,19 +101,23 @@ export const SearchCommand = () => {
     });
     onClose();
     setValue("");
-  }, [value, create, router, onClose]);
+  }, [value, router, onClose]);
 
   // This is key - we want to search only by the title part, ignoring the description
-  const searchTerm = value.includes("-") ? value.split("-")[0].trim().toLowerCase() : value.toLowerCase();
-  
+  const searchTerm = value.includes("-")
+    ? value.split("-")[0].trim().toLowerCase()
+    : value.toLowerCase();
+
   // Filter blogs based on search term
-  const filteredBlogs = blogs?.filter(blog => 
-    blog.title.toLowerCase().includes(searchTerm)
-  ) || [];
+  const filteredBlogs =
+    blogs?.filter((blog) => blog.title.toLowerCase().includes(searchTerm)) ||
+    [];
 
   // Prepare display values for the UI
   const displayTitle = value.includes("-") ? value.split("-")[0].trim() : value;
-  const displayDescription = value.includes("-") ? value.split("-").slice(1).join("-").trim() : "";
+  const displayDescription = value.includes("-")
+    ? value.split("-").slice(1).join("-").trim()
+    : "";
 
   if (!isMounted) {
     return null;
@@ -109,7 +129,7 @@ export const SearchCommand = () => {
         <VisuallyHidden>Search</VisuallyHidden>
       </DialogTitle>
       <CommandInput
-        placeholder={`Search ${user?.fullName}'s Sonnet...`}
+        placeholder={`Search ${user?.firstName}'s Sonnet...`}
         value={value}
         onValueChange={handleValueChange}
       />
@@ -117,7 +137,10 @@ export const SearchCommand = () => {
         {/* Always show the create action group when there's input */}
         {value.trim() !== "" && (
           <CommandGroup heading="Actions">
-            <CommandItem onSelect={handleCreateBlog} className="cursor-pointer rounded-lg">
+            <CommandItem
+              onSelect={handleCreateBlog}
+              className="cursor-pointer rounded-lg"
+            >
               <Plus className="mr-2 h-4 w-4" />
               <div className="flex flex-col">
                 <span>Create new blog "{displayTitle}"</span>
@@ -128,20 +151,20 @@ export const SearchCommand = () => {
             </CommandItem>
           </CommandGroup>
         )}
-        
+
         {/* Only show blogs if we have results */}
         {filteredBlogs.length > 0 && (
           <CommandGroup heading="Blogs">
             {filteredBlogs.map((blog) => (
               <CommandItem
-                key={blog._id}
-                value={`${blog._id}-${blog.title}`}
+                key={blog.blog_id}
+                value={`${blog.blog_id}~~~${blog.title}`}
                 title={blog.title}
                 onSelect={onSelect}
                 className="cursor-pointer rounded-lg"
               >
-                {blog.contentData.icon ? (
-                  <p className="mr-2 text-[18px]">{blog.contentData.icon}</p>
+                {blog.icon ? (
+                  <p className="mr-2 text-[18px]">{blog.icon}</p>
                 ) : (
                   <File className="mr-3 h-4 w-4" />
                 )}
@@ -150,7 +173,7 @@ export const SearchCommand = () => {
             ))}
           </CommandGroup>
         )}
-        
+
         {/* Show empty state only when appropriate */}
         {filteredBlogs.length === 0 && value.trim() !== "" && (
           <CommandEmpty>No results found.</CommandEmpty>

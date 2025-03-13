@@ -22,6 +22,7 @@ export interface BlogActions {
 
 interface BlogCreate {
   title: string;
+  description?: string;
   authorId: string;
   parentBlog?: string;
 }
@@ -40,7 +41,7 @@ blog.create = async (blog: BlogCreate) => {
         author_id: blog.authorId || "",
         parent_blog: blog.parentBlog || "",
 
-        description: "",
+        description: blog.description || "",
         content: "",
         cover_image: "",
         icon: "",

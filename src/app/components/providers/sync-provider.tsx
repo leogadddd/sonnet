@@ -130,10 +130,18 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
       const syncManager = getSyncManager();
       if (!syncManager) return;
 
-      const needsSync = await syncManager.needsSync();
+      const needsSync = syncManager.needsSync();
 
       if (needsSync || lastSynced === null) {
-        toast.info("Saving...");
+        toast.promise(needsSync, {
+          loading: "Checking for updates...",
+          success: "Synced",
+          error: "Error syncing",
+          style: {
+            height: "25px",
+            width: "fit-content",
+          },
+        });
         await sync();
       } else {
         setSyncState("synced");
