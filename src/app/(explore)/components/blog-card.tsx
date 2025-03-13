@@ -23,13 +23,13 @@ const BlogCard = ({ blog }: { blog: Blog }) => {
   };
 
   return (
-    <div className="flex items-center py-4 gap-x-4 border-b w-full max-w-xl mx-auto md:pt-6">
+    <div className="flex items-center py-4 gap-x-4 border-b w-full max-w-xl mx-auto md:pt-6 px-4">
       <div
         role="button"
         onClick={handleOpenBlog}
         className="flex flex-col gap-y-2 w-full"
       >
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-2 mb-2">
           <Avatar className="w-5 h-5">
             <AvatarImage src={author?.imageUrl} />
             <AvatarFallback>
@@ -63,7 +63,7 @@ const BlogCard = ({ blog }: { blog: Blog }) => {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               {blog.title}
             </h1>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-4 line-clamp-2">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground line-clamp-2">
               {blog.description}
             </p>
           </div>
