@@ -185,6 +185,25 @@ class BlogSyncManager {
       throw error;
     }
   }
+
+  async syncSingleBlog(blogId: string) {
+    const localBlog = await this.db.blogs.get(blogId);
+
+    if (!localBlog) {
+      return;
+    }
+
+    if (localBlog.deleted_at > 0) {
+      console.warn(`[Sync] Blog '${blogId}' is marked for deletion, skipping.`);
+      return;
+    }
+
+    try {
+      await this.saveToCloud(localBlog);
+    } catch (error) {
+      console.error(`[Sync] Error syncing blog '${blogId}' to cloud:`, error);
+    }
+  }
 }
 
 export default BlogSyncManager;

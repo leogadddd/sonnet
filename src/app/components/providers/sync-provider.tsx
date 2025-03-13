@@ -70,6 +70,7 @@ type SyncContextType = {
   cloudSync: boolean;
   last_synced: number | null;
   setCloudSync: (cloudSync: boolean) => void;
+  syncSingleBlog: (blogId: string) => void;
   checkSync: () => void;
   sync: () => void;
   syncState: "synced" | "syncing" | "error" | "checking";
@@ -108,6 +109,30 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
       if (!syncManager) return;
 
       await syncManager.sync();
+
+      const now = Date.now();
+      localStorage.setItem("last_synced", now.toString());
+      setLastSynced(now);
+      setSyncState("synced");
+    } catch (error) {
+      console.error("Sync error:", error);
+      setSyncState("error");
+    } finally {
+      syncInProgressRef.current = false;
+    }
+  };
+
+  const syncSingleBlog = async (blogId: string) => {
+    if (!user || syncInProgressRef.current) return;
+
+    try {
+      syncInProgressRef.current = true;
+      setSyncState("syncing");
+
+      const syncManager = getSyncManager();
+      if (!syncManager) return;
+
+      await syncManager.syncSingleBlog(blogId);
 
       const now = Date.now();
       localStorage.setItem("last_synced", now.toString());
@@ -185,6 +210,7 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
       value={{
         cloudSync,
         setCloudSync,
+        syncSingleBlog,
         syncState,
         last_synced: lastSynced,
         checkSync,

@@ -51,6 +51,7 @@ blog.create = async (blog: BlogCreate) => {
         views: 0,
         comments: 0,
         shares: 0,
+        read_time: 0,
 
         is_pinned: 0,
         is_featured: 0,
