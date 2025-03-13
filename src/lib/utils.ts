@@ -68,3 +68,33 @@ export class TimeFormatter {
     return `${days} day${days > 1 ? "s" : ""} ago`;
   }
 }
+
+export function getReadTime(jsonString: string) {
+  const wordsPerMinute = 200;
+
+  // Parse JSON
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonString);
+  } catch (error) {
+    throw new Error("Invalid JSON format");
+  }
+
+  // Function to extract text recursively
+  function extractText(content: any[]): string {
+    return content
+      .map((block) => {
+        if (block.type === "text") return block.text;
+        if (block.content) return extractText(block.content);
+        return "";
+      })
+      .join(" ");
+  }
+
+  // Extract and clean text
+  const cleanedText = extractText(parsed.content).replace(/\s+/g, " ").trim();
+  const wordCount = cleanedText.split(/\s+/).length;
+  const readTime = Math.ceil(wordCount / wordsPerMinute);
+
+  return readTime;
+}

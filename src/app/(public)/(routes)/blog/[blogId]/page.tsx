@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Toolbar } from "@/components/toolbar";
 import { Cover } from "@/components/cover";
 import dynamic from "next/dynamic";
@@ -10,6 +10,7 @@ import Blog from "@/lib/dexie/blog";
 import { createClient } from "@/lib/supabase/client";
 
 const BlogsPageViewer = () => {
+  const router = useRouter();
   const [blog, setBlog] = React.useState<Blog | null | undefined>(undefined);
   const params = useParams();
   const { blogId } = params;
@@ -51,7 +52,7 @@ const BlogsPageViewer = () => {
   }
 
   if (blog === null) {
-    <div>Not Found</div>;
+    router.push("/explore");
   }
 
   return (

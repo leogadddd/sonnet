@@ -113,4 +113,5 @@ export const defaultExtensions = [
   taskList,
   taskItem,
   codeBlockLowlight,
+  UpdatedImage,
 ];
