@@ -49,10 +49,10 @@ const BlogCard = ({ blog }: { blog: Blog }) => {
               </>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Posted by Someone from{" "}
+                Posted from{" "}
                 {process.env.NODE_ENV === "development"
-                  ? "Development"
-                  : "Production"}
+                  ? "Production"
+                  : "Development"}
               </p>
             )}
           </div>
