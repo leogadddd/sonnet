@@ -9,8 +9,9 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { TimeFormatter } from "@/lib/utils";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { UserType } from "@/hooks/use-user";
 
 interface Blog {
   blog_id: string;
@@ -73,7 +74,9 @@ const BlogList = () => {
 const BlogCard = ({ blog }: { blog: Blog }) => {
   const origin = useOrigin();
   const router = useRouter();
-  const user = useQuery(api.users.getByClerkId, { clerkId: blog.author_id });
+  const author = useQuery(api.users.getByClerkId, {
+    clerkId: blog.author_id,
+  });
 
   const handleOpenBlog = () => {
     router.push(`${origin}/blog/${blog.blog_id}`);
@@ -88,17 +91,30 @@ const BlogCard = ({ blog }: { blog: Blog }) => {
       >
         <div className="flex items-center gap-x-2">
           <Avatar className="w-5 h-5">
-            <AvatarImage src={user?.imageUrl} />
+            <AvatarImage src={author?.imageUrl} />
             <AvatarFallback>
-              {user?.firstName?.charAt(0).toUpperCase()}
-              {user?.lastName?.charAt(0).toUpperCase()}
+              {author?.firstName?.charAt(0).toUpperCase()}
+              {author?.lastName?.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex items-center gap-x-1">
-            <p className="text-xs font-bold hover:underline cursor-pointer">
-              {user?.firstName} {user?.lastName}
-            </p>
-            <p className="text-xs text-muted-foreground">posted</p>
+            {author ? (
+              <>
+                <p className="text-xs font-bold hover:underline cursor-pointer">
+                  <>
+                    {author?.firstName} {author?.lastName}
+                  </>
+                </p>
+                <p className="text-xs text-muted-foreground">posted</p>
+              </>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Posted by Someone from{" "}
+                {process.env.NODE_ENV === "development"
+                  ? "Development"
+                  : "Production"}
+              </p>
+            )}
           </div>
         </div>
 

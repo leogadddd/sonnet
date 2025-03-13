@@ -12,6 +12,7 @@ import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { DexieProvider } from "./components/providers/dexie-provider";
 import { SyncProvider } from "./components/providers/sync-provider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { UserProvider } from "./components/providers/user-provider";
 
 const poppins = Poppins({
   subsets: ["latin"], // Ensures support for Latin characters
@@ -42,19 +43,21 @@ export default function RootLayout({
             <SyncProvider>
               <PostHogProvider>
                 <ConvexClientProvider>
-                  <EdgeStoreProvider>
-                    <ThemeProvider
-                      attribute="class"
-                      defaultTheme="system"
-                      enableSystem
-                      disableTransitionOnChange
-                      storageKey="sonnet-theme-2"
-                    >
-                      <Toaster position="bottom-right" />
-                      <ModalProvider />
-                      {children}
-                    </ThemeProvider>
-                  </EdgeStoreProvider>
+                  <UserProvider>
+                    <EdgeStoreProvider>
+                      <ThemeProvider
+                        attribute="class"
+                        defaultTheme="system"
+                        enableSystem
+                        disableTransitionOnChange
+                        storageKey="sonnet-theme-2"
+                      >
+                        <Toaster position="bottom-right" />
+                        <ModalProvider />
+                        {children}
+                      </ThemeProvider>
+                    </EdgeStoreProvider>
+                  </UserProvider>
                 </ConvexClientProvider>
               </PostHogProvider>
             </SyncProvider>

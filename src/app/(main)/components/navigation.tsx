@@ -164,7 +164,7 @@ export const Navigation = () => {
             onClick={collapse}
             role="button"
             className={cn(
-              "hidden h-9 w-9 mr-2 text-muted-foreground absolute top-4 right-3 transition",
+              "hidden h-6 w-6 mr-1 text-muted-foreground absolute top-4 right-3 transition",
               isMobile && "block"
             )}
           />
