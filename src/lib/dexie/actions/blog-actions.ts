@@ -17,6 +17,7 @@ export interface BlogActions {
   removeCoverImage: (blogId: string) => Promise<unknown>;
   publish: (blogId: string) => Promise<unknown>;
   unpublish: (blogId: string) => Promise<unknown>;
+  sync: (blogId: string) => Promise<unknown>;
 }
 
 interface BlogCreate {
@@ -30,17 +31,18 @@ const blog = () => {};
 blog.create = async (blog: BlogCreate) => {
   return new Promise(async (resolve, reject) => {
     try {
+      const blogId = crypto.randomUUID();
       const formattedBlog = {
         title: blog.title || "New Blog",
-        slug: "",
-        blogId: crypto.randomUUID(),
+        slug: blogId,
+        blog_id: blogId,
 
-        authorId: blog.authorId || "",
-        parentBlog: blog.parentBlog || "",
+        author_id: blog.authorId || "",
+        parent_blog: blog.parentBlog || "",
 
         description: "",
         content: "",
-        coverImage: "",
+        cover_image: "",
         icon: "",
         tags: [],
 
@@ -49,21 +51,23 @@ blog.create = async (blog: BlogCreate) => {
         comments: 0,
         shares: 0,
 
-        isPinned: 0,
-        isFeatured: 0,
-        isPublished: 0,
-        isArchived: 0,
-        isPreview: 0,
-        isOnExplore: 0,
+        is_pinned: 0,
+        is_featured: 0,
+        is_published: 0,
+        is_archived: 0,
+        is_preview: 0,
+        is_on_explore: 0,
 
-        publishedAt: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        published_at: 0,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        deleted_at: 0,
+        synced_at: 0,
       };
 
       await db.blogs.add(formattedBlog);
 
-      resolve(formattedBlog.blogId);
+      resolve(formattedBlog.blog_id);
     } catch (error) {
       reject(error);
     }
@@ -73,7 +77,7 @@ blog.create = async (blog: BlogCreate) => {
 blog.archive = async (blogId: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blog = await db.blogs.where("blogId").equals(blogId).first();
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
       if (!blog) {
         reject(new Error("Blog not found"));
         return;
@@ -81,19 +85,22 @@ blog.archive = async (blogId: string) => {
 
       const recursiveArchive = async (blogId: string) => {
         const children = await db.blogs
-          .where("parentBlog")
+          .where("parent_blog")
           .equals(blogId)
           .toArray();
         for (const child of children) {
-          await db.blogs.update(child.id, { isArchived: 1 });
+          await db.blogs.update(child.blog_id, { is_archived: 1 });
 
-          await recursiveArchive(child.blogId);
+          await recursiveArchive(child.blog_id);
         }
       };
 
-      await db.blogs.update(blog.id, { isArchived: 1 });
-
       await recursiveArchive(blogId);
+
+      await db.blogs.update(blog.blog_id, {
+        is_archived: 1,
+        updated_at: Date.now(),
+      });
 
       resolve(true);
     } catch (error) {
@@ -105,12 +112,16 @@ blog.archive = async (blogId: string) => {
 blog.setPreview = async (blogId: string, isPreview: boolean) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blog = await db.blogs.where("blogId").equals(blogId).first();
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
       if (!blog) {
         reject(new Error("Blog not found"));
         return;
       }
-      await db.blogs.update(blog.id, { isPreview: isPreview ? 1 : 0 });
+      await db.blogs.update(blog.blog_id, {
+        is_preview: isPreview ? 1 : 0,
+        updated_at: Date.now(),
+      });
+
       resolve(true);
     } catch (error) {
       reject(error);
@@ -121,12 +132,16 @@ blog.setPreview = async (blogId: string, isPreview: boolean) => {
 blog.update = async (blogId: string, updates: Partial<Blog>) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blog = await db.blogs.where("blogId").equals(blogId).first();
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
       if (!blog) {
         reject(new Error("Blog not found"));
         return;
       }
-      await db.blogs.update(blog.id, updates);
+      await db.blogs.update(blog.blog_id, {
+        ...updates,
+        updated_at: Date.now(),
+      });
+
       resolve(true);
     } catch (error) {
       reject(error);
@@ -137,12 +152,16 @@ blog.update = async (blogId: string, updates: Partial<Blog>) => {
 blog.setPinned = async (blogId: string, isPinned: boolean) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blog = await db.blogs.where("blogId").equals(blogId).first();
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
       if (!blog) {
         reject(new Error("Blog not found"));
         return;
       }
-      await db.blogs.update(blog.id, { isPinned: isPinned ? 1 : 0 });
+      await db.blogs.update(blog.blog_id, {
+        is_pinned: isPinned ? 1 : 0,
+        updated_at: Date.now(),
+      });
+
       resolve(blog);
     } catch (error) {
       reject(error);
@@ -153,17 +172,23 @@ blog.setPinned = async (blogId: string, isPinned: boolean) => {
 blog.delete = async (blogId: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      await db.blogs.where("blogId").equals(blogId).delete();
+      await db.blogs.update(blogId, {
+        deleted_at: Date.now(), // Soft delete
+        updated_at: Date.now(),
+      });
 
       const recursiveDelete = async (blogId: string) => {
         const children = await db.blogs
-          .where("parentBlog")
+          .where("parent_blog")
           .equals(blogId)
           .toArray();
 
         for (const child of children) {
-          await db.blogs.delete(child.id);
-          await recursiveDelete(child.blogId);
+          await db.blogs.update(child.blog_id, {
+            deleted_at: Date.now(), // Soft delete
+            updated_at: Date.now(),
+          });
+          await recursiveDelete(child.blog_id);
         }
       };
 
@@ -179,7 +204,14 @@ blog.delete = async (blogId: string) => {
 blog.deleteAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {
-      await db.blogs.where("isArchived").equals(1).delete();
+      const blogs = await db.blogs.where("is_archived").equals(1).toArray();
+      for (const blog of blogs) {
+        await db.blogs.update(blog.blog_id, {
+          deleted_at: Date.now(), // Soft delete
+          updated_at: Date.now(),
+        });
+      }
+
       resolve(true);
     } catch (error) {
       reject(error);
@@ -190,7 +222,7 @@ blog.deleteAll = async () => {
 blog.restore = async (blogId: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blog = await db.blogs.where("blogId").equals(blogId).first();
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
       if (!blog) {
         reject(new Error("Blog not found"));
         return;
@@ -198,33 +230,37 @@ blog.restore = async (blogId: string) => {
 
       const recursiveRestore = async (blogId: string) => {
         const children = await db.blogs
-          .where("parentBlog")
+          .where("parent_blog")
           .equals(blogId)
           .toArray();
 
         for (const child of children) {
-          await db.blogs.update(child.id, { isArchived: 0 });
+          await db.blogs.update(child.blog_id, {
+            is_archived: 0,
+            updated_at: Date.now(),
+          });
 
-          await recursiveRestore(child.blogId);
+          await recursiveRestore(child.blog_id);
         }
       };
 
       const options: Partial<Blog> = {
-        isArchived: 0,
+        is_archived: 0,
+        updated_at: Date.now(),
       };
 
-      if (blog.parentBlog) {
+      if (blog.parent_blog) {
         const parentBlog = await db.blogs
-          .where("blogId")
-          .equals(blog.parentBlog)
+          .where("blog_id")
+          .equals(blog.parent_blog)
           .first();
 
-        if (parentBlog?.isArchived) {
-          options.parentBlog = "";
+        if (parentBlog?.is_archived) {
+          options.parent_blog = "";
         }
       }
 
-      await db.blogs.update(blog.id, options);
+      await db.blogs.update(blog.blog_id, options);
 
       await recursiveRestore(blogId);
 
@@ -238,7 +274,46 @@ blog.restore = async (blogId: string) => {
 blog.restoreAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {
-      await db.blogs.where("isArchived").equals(1).delete();
+      const blogs = await db.blogs.where("is_archived").equals(1).toArray();
+
+      for (const blog of blogs) {
+        const recursiveRestore = async (blogId: string) => {
+          const children = await db.blogs
+            .where("parent_blog")
+            .equals(blogId)
+            .toArray();
+
+          for (const child of children) {
+            await db.blogs.update(child.blog_id, {
+              is_archived: 0,
+              updated_at: Date.now(),
+            });
+
+            await recursiveRestore(child.blog_id);
+          }
+        };
+
+        const options: Partial<Blog> = {
+          is_archived: 0,
+          updated_at: Date.now(),
+        };
+
+        if (blog.parent_blog) {
+          const parentBlog = await db.blogs
+            .where("blog_id")
+            .equals(blog.parent_blog)
+            .first();
+
+          if (parentBlog?.is_archived) {
+            options.parent_blog = "";
+          }
+        }
+
+        await db.blogs.update(blog.blog_id, options);
+
+        await recursiveRestore(blog.blog_id);
+      }
+
       resolve(true);
     } catch (error) {
       reject(error);
@@ -249,12 +324,16 @@ blog.restoreAll = async () => {
 blog.removeCoverImage = async (blogId: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blog = await db.blogs.where("blogId").equals(blogId).first();
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
       if (!blog) {
         reject(new Error("Blog not found"));
         return;
       }
-      await db.blogs.update(blog.id, { coverImage: "" });
+      await db.blogs.update(blog.blog_id, {
+        cover_image: "",
+        updated_at: Date.now(),
+      });
+
       resolve(unknown);
     } catch (error) {
       reject(error);
@@ -265,15 +344,17 @@ blog.removeCoverImage = async (blogId: string) => {
 blog.publish = async (blogId: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blog = await db.blogs.where("blogId").equals(blogId).first();
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
       if (!blog) {
         reject(new Error("Blog not found"));
         return;
       }
-      await db.blogs.update(blog.id, {
-        isPublished: 1,
-        publishedAt: Date.now(),
+      await db.blogs.update(blog.blog_id, {
+        is_published: 1,
+        published_at: Date.now(),
+        updated_at: Date.now(),
       });
+
       resolve(true);
     } catch (error) {
       reject(error);
@@ -284,12 +365,37 @@ blog.publish = async (blogId: string) => {
 blog.unpublish = async (blogId: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blog = await db.blogs.where("blogId").equals(blogId).first();
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
       if (!blog) {
         reject(new Error("Blog not found"));
         return;
       }
-      await db.blogs.update(blog.id, { isPublished: 0, publishedAt: 0 });
+      await db.blogs.update(blog.blog_id, {
+        is_published: 0,
+        published_at: 0,
+        updated_at: Date.now(),
+      });
+
+      resolve(true);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+blog.sync = async (blogId: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const blog = await db.blogs.where("blog_id").equals(blogId).first();
+      if (!blog) {
+        reject(new Error("Blog not found"));
+        return;
+      }
+      await db.blogs.update(blog.blog_id, {
+        synced_at: Date.now(),
+        updated_at: Date.now(),
+      });
+
       resolve(true);
     } catch (error) {
       reject(error);

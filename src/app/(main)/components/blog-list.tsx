@@ -36,10 +36,10 @@ const Bloglist = React.memo(
 
     const sidebar = useLiveQuery(async () => {
       const blogs = await db.blogs
-        .where(["isPinned", "isArchived", "parentBlog"])
+        .where(["is_pinned", "is_archived", "parent_blog"])
         .equals([pinned ? 1 : 0, 0, parentBlog ?? ""])
         .reverse()
-        .sortBy("createdAt");
+        .sortBy("created_at");
 
       setEmpty(false);
 
@@ -48,7 +48,7 @@ const Bloglist = React.memo(
 
     const onRedirect = React.useCallback(
       (blog: Blog) => {
-        router.push(`/dashboard/${blog.blogId}`);
+        router.push(`/dashboard/${blog.blog_id}`);
       },
       [router]
     );
@@ -72,21 +72,21 @@ const Bloglist = React.memo(
           No Pages inside
         </p>
         {sidebar.map((blog) => (
-          <div key={blog.blogId}>
+          <div key={blog.blog_id}>
             <Item
-              id={blog.blogId}
+              id={blog.blog_id}
               onClick={() => onRedirect(blog)}
               label={blog.title}
               icon={FileIcon}
               documentIcon={blog.icon}
-              active={params?.blogId == blog.blogId}
+              active={params?.blogId == blog.blog_id}
               level={level}
-              isPinned={blog.isPinned === 1}
-              onExpand={() => onExpand(blog.blogId)}
-              expanded={expanded[blog.blogId]}
+              isPinned={blog.is_pinned === 1}
+              onExpand={() => onExpand(blog.blog_id)}
+              expanded={expanded[blog.blog_id]}
             />
-            {expanded[blog.blogId] && (
-              <Bloglist parentBlog={blog.blogId} level={level + 1} />
+            {expanded[blog.blog_id] && (
+              <Bloglist parentBlog={blog.blog_id} level={level + 1} />
             )}
           </div>
         ))}

@@ -27,6 +27,8 @@ import { toast } from "sonner";
 import { memo } from "react";
 import { usePublish } from "@/hooks/use-publish";
 import { useDexie } from "@/components/providers/dexie-provider";
+import useUser from "@/hooks/use-user";
+
 interface ItemProps {
   id?: string;
   documentIcon?: string;
@@ -60,8 +62,6 @@ const Item = ({
 }: ItemProps) => {
   const router = useRouter();
   const { actions } = useDexie();
-  const create = useMutation(api.blogs.create);
-  const archive = useMutation(api.blogs.archive);
   const publish = usePublish();
 
   const onArchive = useCallback(
@@ -78,7 +78,7 @@ const Item = ({
         error: "Failed to move to trash.",
       });
     },
-    [archive, id, router]
+    [id, router]
   );
 
   const handleExpand = useCallback(
@@ -89,15 +89,19 @@ const Item = ({
     [onExpand]
   );
 
+  const { user } = useUser();
+
   const onCreate = useCallback(
     (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       event.stopPropagation();
       if (!id) return;
+      if (!user?.clerkId)
+        return toast.error("User not found. Please sign in again.");
 
       const promise = actions.blog
         .create({
           title: "New Page",
-          authorId: "1",
+          authorId: user?.clerkId || "",
           parentBlog: id,
         })
         .then((documentId) => {
@@ -113,7 +117,7 @@ const Item = ({
         error: "Failed to create a new page.",
       });
     },
-    [create, expanded, id, onExpand, router]
+    [expanded, id, onExpand, router]
   );
 
   const onPublish = useCallback(() => {
@@ -167,7 +171,14 @@ const Item = ({
       ) : (
         <Icon className="shrink-0 h-[18px] mr-2 text-muted-foreground" />
       )}
-      <span className={cn("truncate", active && "font-bold")}>{label}</span>
+      <span
+        className={cn(
+          "truncate text-[#3f3f3f] dark:text-[#cfcfcf]",
+          active && "font-bold"
+        )}
+      >
+        {label}
+      </span>
       {isSearch && (
         <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-primary/5 px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
           <span className="text-xs">⌘</span>K
@@ -228,7 +239,7 @@ Item.ContextMenu = memo(function ItemContextMenu({
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="p-1 w-60 ml-10 bg-background dark:bg-[#181717] drop-shadow-md rounded-xl"
+        className="p-1 w-60 ml-10 bg-background dark:bg-[#181717] rounded-xl"
         align="start"
         side="right"
         alignOffset={-12}

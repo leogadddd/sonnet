@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { usePublish } from "@/hooks/use-publish";
 import { useDexie } from "@/app/components/providers/dexie-provider";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useEditor } from "@/hooks/use-editor";
 
 interface NavbarProps {
   isCollapsed: boolean;
@@ -31,13 +32,14 @@ NavbarSkeleton.displayName = "NavbarSkeleton";
 
 export const Navbar = React.memo(
   ({ isCollapsed, collapse, onResetWidth }: NavbarProps) => {
+    const { saveStatus, characterCount } = useEditor();
     const params = useParams();
     const blogId = params.blogId as string;
 
     const { actions, db } = useDexie();
 
     const blog = useLiveQuery(async () => {
-      return await db.blogs.where("blogId").equals(blogId).first();
+      return await db.blogs.where("blog_id").equals(blogId).first();
     }, [blogId]);
 
     const publish = usePublish();
@@ -54,7 +56,7 @@ export const Navbar = React.memo(
     const handleUnlock = useCallback(async () => {
       if (!blog) return;
 
-      const promise = actions.blog.setPreview(blog.blogId, false);
+      const promise = actions.blog.setPreview(blog.blog_id, false);
 
       toast.promise(promise, {
         loading: "Unlocking blog...",
@@ -94,7 +96,7 @@ export const Navbar = React.memo(
                 <Title initialData={blog} />
               </div>
               <div className="flex items-center gap-x-2 flex-shrink-0 px-2">
-                {blog.isPreview === 1 && (
+                {blog.is_preview === 1 && (
                   <Badge
                     role="button"
                     onClick={handleUnlock}
@@ -108,7 +110,7 @@ export const Navbar = React.memo(
                     </div>
                   </Badge>
                 )}
-                {blog.isPublished === 1 && (
+                {blog.is_published === 1 && (
                   <Badge
                     role="button"
                     variant={"outline"}
@@ -122,7 +124,7 @@ export const Navbar = React.memo(
                     </div>
                   </Badge>
                 )}
-                {blog.isOnExplore === 1 && (
+                {blog.is_on_explore === 1 && (
                   <Badge
                     role="button"
                     variant={"outline"}
@@ -141,11 +143,29 @@ export const Navbar = React.memo(
               </div>
             </div>
             <div className="flex items-center gap-x-2">
+              <div>
+                {/* {saveStatus === "unsaved" && (
+                  <Badge
+                    variant={"outline"}
+                    className="text-xs text-muted-foreground group/lock-badge hover:text-primary hover:border-primary/25"
+                  >
+                    Unsaved
+                  </Badge>
+                )}
+                {saveStatus === "saved" && (
+                  <Badge
+                    variant={"outline"}
+                    className="text-xs text-muted-foreground group/lock-badge hover:text-primary hover:border-primary/25"
+                  >
+                    Saved
+                  </Badge>
+                )} */}
+              </div>
               <Menu initialData={blog} />
             </div>
           </div>
         </nav>
-        {blog.isArchived === 1 && <Banner blogId={blog.blogId} />}
+        {blog.is_archived === 1 && <Banner blogId={blog.blog_id} />}
       </>
     );
   }

@@ -17,7 +17,7 @@ const Banner = ({ blogId }: BannerProps) => {
   const { actions, db } = useDexie();
 
   const currentBlog = useLiveQuery(async () => {
-    return await db.blogs.where("blogId").equals(blogId).first();
+    return await db.blogs.where("blog_id").equals(blogId).first();
   }, [blogId]);
 
   const onRemove = () => {
@@ -41,7 +41,7 @@ const Banner = ({ blogId }: BannerProps) => {
     });
   };
 
-  if (currentBlog?.isArchived === 0) {
+  if (currentBlog?.is_archived === 0) {
     return null;
   }
 

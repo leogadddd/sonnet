@@ -34,7 +34,7 @@ export const Title = ({ initialData }: TitleProps) => {
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
-    actions.blog.update(initialData.blogId, {
+    actions.blog.update(initialData.blog_id, {
       title: event.target.value,
     });
   };

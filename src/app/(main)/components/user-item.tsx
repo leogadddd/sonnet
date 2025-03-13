@@ -11,9 +11,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useClerk, useUser } from "@clerk/clerk-react";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { dark } from "@clerk/themes";
 import { useTheme } from "next-themes";
+import { useSync } from "@/components/providers/sync-provider";
+import { formatDate } from "@/lib/utils";
+import { SyncText } from "@/app/components/syncbutton";
 
 interface UserItemProps {
   isMobile: boolean;
@@ -36,11 +39,14 @@ const UserItem = ({ isMobile }: UserItemProps) => {
               <AvatarImage src={user?.imageUrl} className="object-cover" />
             </Avatar>
           </div>
-          <p className="text-sm line-clamp-1 flex flex-col">
-            <span className="text-start font-bold w-full truncate">
-              {user?.username}
-            </span>
-          </p>
+          <div className="flex flex-col pointer-events-none">
+            <p className="text-sm">
+              <span className="text-start font-bold w-full truncate">
+                {user?.username}
+              </span>
+            </p>
+            <SyncText />
+          </div>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -74,7 +80,7 @@ const UserItem = ({ isMobile }: UserItemProps) => {
               <Button
                 variant={"ghost"}
                 size={"sm"}
-                className="w-full justify-start h-8 rounded-lg"
+                className="w-full justify-start h-8 rounded-xl"
                 onClick={() => {}}
               >
                 <User className="h-4 w-4 mr-2" />
@@ -85,7 +91,7 @@ const UserItem = ({ isMobile }: UserItemProps) => {
               <Button
                 variant={"ghost"}
                 size={"sm"}
-                className="w-full justify-start h-8 rounded-lg"
+                className="w-full justify-start h-8 rounded-xl"
                 onClick={() =>
                   clerk.openUserProfile({
                     appearance: {
@@ -103,7 +109,7 @@ const UserItem = ({ isMobile }: UserItemProps) => {
               <Button
                 variant={"ghost"}
                 size={"sm"}
-                className="w-full justify-start h-8 rounded-lg"
+                className="w-full justify-start h-8 rounded-xl"
                 onClick={() => clerk.signOut()}
               >
                 <LogOut className="h-4 w-4 mr-2 text-red-500" />

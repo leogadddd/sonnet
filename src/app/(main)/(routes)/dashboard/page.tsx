@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Globe, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
 import { useDexie } from "@/components/providers/dexie-provider";
-
+import useUser from "@/hooks/use-user";
 const font = Poppins({
   subsets: ["latin"],
   weight: ["400", "600"],
@@ -19,11 +19,12 @@ const font = Poppins({
 const BlogsPage = () => {
   const router = useRouter();
   const { actions } = useDexie();
+  const { user } = useUser();
   const onCreate = () => {
     const promise = actions.blog
       .create({
         title: "New Blog",
-        authorId: "1",
+        authorId: user?.clerkId || "",
       })
       .then((blogId) => {
         router.push(`/dashboard/${blogId}`);
@@ -49,37 +50,31 @@ const BlogsPage = () => {
         <p className="text-center font-medium text-muted-foreground">
           Craft your thoughts, share your ideas, and make your words count.
         </p>
-        <div className="space-y-2 md:text-left text-center pt-4">
-          <div className="">
-            <p className="text-base sm:text-lg font-medium text-muted-foreground">
-              <span
-                className={cn("font-bold logo-text-gradient", font.className)}
-              >
-                →
-              </span>{" "}
-              <span className="font-bold text-foreground">
-                Create Your First Blog
-              </span>{" "}
-              – Begin writing and express yourself.
+        <div className="flex flex-col items-center gap-y-4 pt-4 max-w-[500px] mx-auto">
+          <div className="flex flex-col items-center">
+            <span className="font-bold text-foreground logo-text-gradient text-xl">
+              Create Your First Blog
+            </span>
+            <p className="text-base sm:text-md font-medium text-muted-foreground">
+              Begin writing and express yourself.
             </p>
           </div>
-          <div>
-            <p className="text-base sm:text-lg font-medium text-muted-foreground">
-              <span
-                className={cn("font-bold logo-text-gradient", font.className)}
-              >
-                →
-              </span>{" "}
-              <span className="font-bold text-foreground">
-                Explore Templates
-              </span>{" "}
-              – Get inspired with pre-made formats.
+
+          <div className="flex flex-col items-center">
+            <span className="font-bold text-foreground logo-text-gradient text-xl">
+              Discover Blogs
+            </span>
+            <p className="text-base sm:text-md font-medium text-muted-foreground">
+              Discover and get inspired by other blogs.
             </p>
           </div>
         </div>
         <div className="flex items-center justify-center w-full gap-x-2 mt-20">
-          <Button asChild size={"lg"} variant={"ghost"}>
-            <Link href="/explore">Explore Blogs</Link>
+          <Button asChild size={"lg"} variant={"ghost"} className="rounded-lg">
+            <Link href="/explore">
+              <Globe className="w-4 h-4 mr-2" />
+              Explore Blogs
+            </Link>
           </Button>
           <Button size={"lg"} onClick={onCreate} className="rounded-lg">
             <Plus className="w-4 h-4 mr-2" />
