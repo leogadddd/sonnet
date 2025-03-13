@@ -7,6 +7,7 @@ import { Cover } from "@/components/cover";
 import dynamic from "next/dynamic";
 import { useDexie } from "@/components/providers/dexie-provider";
 import { useLiveQuery } from "dexie-react-hooks";
+import { getReadTime } from "@/lib/utils";
 
 const BlogsPageEditor = () => {
   const params = useParams();
@@ -29,6 +30,7 @@ const BlogsPageEditor = () => {
     return (value: string) => {
       actions.blog.update(blog?.blog_id as string, {
         content: value,
+        read_time: getReadTime(value),
       });
     };
   }, [blog]);
