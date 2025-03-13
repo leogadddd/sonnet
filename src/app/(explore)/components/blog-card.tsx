@@ -1,7 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import { useOrigin } from "@/hooks/use-origin";
 import Blog from "@/lib/dexie/blog";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
