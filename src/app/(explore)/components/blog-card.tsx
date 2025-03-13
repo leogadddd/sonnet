@@ -1,3 +1,5 @@
+"use client";
+
 import { api } from "@/convex/_generated/api";
 import { useOrigin } from "@/hooks/use-origin";
 import Blog from "@/lib/dexie/blog";

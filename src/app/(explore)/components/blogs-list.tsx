@@ -45,10 +45,10 @@ const BlogList = () => {
   return (
     <div className="flex flex-col gap-y-4 w-full">
       {blogs.map((blog) => (
-        <div key={blog.blog_id}>
-          <h1>{blog.title}</h1>
-        </div>
-        // <BlogCard key={blog.blog_id} blog={blog} />
+        // <div key={blog.blog_id}>
+        //   <h1>{blog.title}</h1>
+        // </div>
+        <BlogCard key={blog.blog_id} blog={blog} />
       ))}
     </div>
   );
