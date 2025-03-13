@@ -16,9 +16,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     if (!isAuthenticated && !isLoading) {
       router.push("/");
     }
-  }, [isAuthenticated, router]);
+  }, [isLoading, router]);
 
-  if (isLoading) {
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="h-full flex items-center justify-center">
         <Spinner size="lg" />

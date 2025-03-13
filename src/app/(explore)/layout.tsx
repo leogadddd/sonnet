@@ -12,15 +12,12 @@ const ExploreLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isLoading } = useConvexAuth();
 
   if (isLoading) {
     return null;
   }
 
-  if (!isAuthenticated) {
-    return redirect("/");
-  }
   return (
     <div className="flex flex-col h-full">
       <Navbar />

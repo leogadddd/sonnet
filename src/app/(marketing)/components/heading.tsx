@@ -37,19 +37,17 @@ export const Heading = () => {
         — effortless, every time!
       </h3>
       <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-4 pt-6">
-        {isAuthenticated && (
-          <Button
-            asChild
-            size={"lg"}
-            variant={"ghost"}
-            className="hover:bg-foreground/5"
-          >
-            <Link href="/explore">
-              <Globe className="w-4 h-4" />
-              <span className="">Explore</span>
-            </Link>
-          </Button>
-        )}
+        <Button
+          asChild
+          size={"lg"}
+          variant={"ghost"}
+          className="hover:bg-foreground/5"
+        >
+          <Link href="/explore">
+            <Globe className="w-4 h-4" />
+            <span className="">Explore</span>
+          </Link>
+        </Button>
         {isAuthenticated && !isLoading && (
           <Button asChild size={"lg"} className="rounded-lg">
             <Link
@@ -57,7 +55,7 @@ export const Heading = () => {
               onClick={() => posthog.capture("clicked Continue Writing")}
             >
               <Pen className="w-4 h-4" />
-              Start Writing
+              Dashboard
               <ArrowRight className="h-4 w-4 ml-1" />
             </Link>
           </Button>

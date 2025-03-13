@@ -36,16 +36,14 @@ export const Navbar = () => {
 
       {/* Centered navigation links */}
       <div className="flex-1 md:flex hidden justify-end space-x-4 pr-6 text-muted-foreground">
-        {isAuthenticated && (
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="h-9 hover:bg-foreground/5"
-          >
-            <Link href="/explore">Explore</Link>
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="h-9 hover:bg-foreground/5"
+        >
+          <Link href="/explore">Explore</Link>
+        </Button>
         {/* <Button
           variant="ghost"
           size="sm"
@@ -106,7 +104,7 @@ Navbar.MobileMenu = () => {
         forceMount
       >
         <div className="flex flex-col gap-y-2">
-          {/* <Button
+          <Button
             variant="ghost"
             size="sm"
             asChild
@@ -115,7 +113,7 @@ Navbar.MobileMenu = () => {
             <Link href="/explore" className="flex justify-between">
               Explore <ChevronRight className="h-4 w-4" />
             </Link>
-          </Button> */}
+          </Button>
           <Button
             variant="ghost"
             size="sm"
