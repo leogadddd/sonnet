@@ -32,8 +32,13 @@ class BlogSyncManager {
   }
 
   async needsSync() {
-    const cloudBlogs = await this.fetchCloudBlogs();
-    const localBlogs = await this.fetchLocalBlogs();
+    const _cloudBlogs = this.fetchCloudBlogs();
+    const _localBlogs = this.fetchLocalBlogs();
+
+    const [cloudBlogs, localBlogs] = await Promise.all([
+      _cloudBlogs,
+      _localBlogs,
+    ]);
 
     for (const localBlog of localBlogs) {
       const cloudBlog = cloudBlogs.find((b) => b.blog_id === localBlog.blog_id);

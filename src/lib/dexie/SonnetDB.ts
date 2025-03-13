@@ -9,7 +9,7 @@ export default class SonnetDB extends Dexie {
     super("SonnetDB");
     this.version(1).stores({
       blogs:
-        "blog_id, [is_pinned+is_archived+parent_blog], is_preview, is_archived, parent_blog, [is_archived+deleted_at], updated_at",
+        "blog_id, [is_pinned+is_archived+parent_blog], is_preview, is_archived, parent_blog, [is_archived+deleted_at], updated_at, deleted_at",
     });
     this.blogs.mapToClass(Blog);
   }
