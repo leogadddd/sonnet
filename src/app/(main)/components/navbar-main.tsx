@@ -82,7 +82,7 @@ export const Navbar = React.memo(
                 <ChevronLeft
                   onClick={handleCollapse}
                   role="button"
-                  className="h-6 w-6 mb-1 text-muted-foreground flex-shrink-0"
+                  className="h-6 w-6 mb-1 mt-1 text-muted-foreground flex-shrink-0"
                 />
               )}
               {isCollapsed && (

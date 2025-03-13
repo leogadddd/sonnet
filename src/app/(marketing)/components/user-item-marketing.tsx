@@ -7,13 +7,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/clerk-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, ShieldUser, User } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { ModeToggle } from "@/app/components/mode-toggle";
 import { dark } from "@clerk/themes";
 import { useTheme } from "next-themes";
+import useUser from "@/hooks/use-user";
 
 const UserItem = () => {
   const clerk = useClerk();
@@ -53,7 +54,7 @@ const UserItem = () => {
               </p>
               <p className="text-sm line-clamp-1">
                 <span className="text-start font-normal w-full truncate text-muted-foreground">
-                  {user?.emailAddresses[0].emailAddress}
+                  {user?.email}
                 </span>
               </p>
             </div>

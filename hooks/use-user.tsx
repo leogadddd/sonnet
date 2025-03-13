@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 // Define user type
-type UserType = {
+export type UserType = {
   clerkId: string;
   firstName: string;
   lastName: string;

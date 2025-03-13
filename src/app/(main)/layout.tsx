@@ -1,37 +1,22 @@
 "use client";
 
-import { useConvexAuth, useQuery } from "convex/react";
+import { useConvexAuth } from "convex/react";
 import React, { useEffect } from "react";
 import { Spinner } from "@/components/spinner";
 import { useRouter } from "next/navigation";
 import { Navigation } from "@/components/navigation";
 import { SearchCommand } from "@/components/search-command";
-import useUser from "@/hooks/use-user";
-import { useSession } from "@clerk/nextjs";
 import "@/styles/prose-mirror.css";
-import { api } from "@/convex/_generated/api";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useConvexAuth();
-  const { setUser } = useUser();
-  const { session } = useSession();
   const router = useRouter();
 
-  const user = useQuery(api.users.getByClerkId, {
-    clerkId: session?.user?.id || "",
-  });
-
   useEffect(() => {
-    if (session?.user && user) {
-      setUser(user);
-    }
-  }, [session?.user, user, setUser]);
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isAuthenticated) {
       router.push("/");
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, router]);
 
   if (isLoading) {
     return (

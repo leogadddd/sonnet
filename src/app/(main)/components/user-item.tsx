@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LogOut, ShieldUser, User } from "lucide-react";
+import { AlertTriangle, LogOut, ShieldUser, User } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,13 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useClerk, useUser } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { dark } from "@clerk/themes";
 import { useTheme } from "next-themes";
 import { useSync } from "@/components/providers/sync-provider";
 import { formatDate } from "@/lib/utils";
 import { SyncText } from "@/app/components/syncbutton";
+import useUser from "@/hooks/use-user";
+import { Badge } from "@/app/components/ui/badge";
 
 interface UserItemProps {
   isMobile: boolean;
@@ -26,6 +28,17 @@ const UserItem = ({ isMobile }: UserItemProps) => {
   const clerk = useClerk();
   const { user } = useUser();
   const { theme } = useTheme();
+
+  if (!user) {
+    return (
+      <div className="flex items-center gap-x-2 text-sm p-4 select-none hover:bg-primary/5">
+        <p className="text-sm text-red-500 flex items-center">
+          <AlertTriangle className="h-6 w-6 mr-2" />
+          Error loading User
+        </p>
+      </div>
+    );
+  }
 
   return (
     <DropdownMenu>
@@ -39,12 +52,22 @@ const UserItem = ({ isMobile }: UserItemProps) => {
               <AvatarImage src={user?.imageUrl} className="object-cover" />
             </Avatar>
           </div>
-          <div className="flex flex-col pointer-events-none">
-            <p className="text-sm">
-              <span className="text-start font-bold w-full truncate">
-                {user?.username}
-              </span>
-            </p>
+          <div className="pointer-events-none">
+            <div className="flex gap-x-2">
+              <p className="text-sm">
+                <span className="text-start font-bold w-full truncate">
+                  {user?.username}
+                </span>
+              </p>
+              {process.env.NODE_ENV === "development" && (
+                <Badge
+                  variant={"outline"}
+                  className="px-2 text-muted-foreground py-0 text-xs"
+                >
+                  dev
+                </Badge>
+              )}
+            </div>
             <SyncText />
           </div>
         </div>
@@ -69,7 +92,7 @@ const UserItem = ({ isMobile }: UserItemProps) => {
               </p>
               <p className="text-sm line-clamp-1">
                 <span className="text-start font-normal w-full truncate text-muted-foreground">
-                  {user?.emailAddresses[0].emailAddress}
+                  {user?.email}
                 </span>
               </p>
             </div>
