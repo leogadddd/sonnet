@@ -155,10 +155,11 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
       const syncManager = getSyncManager();
       if (!syncManager) return;
 
-      const needsSync = syncManager.needsSync();
+      const needsSync = await syncManager.needsSync();
 
       if (needsSync || lastSynced === null) {
-        toast.promise(needsSync, {
+        const promise = sync();
+        toast.promise(promise, {
           loading: "Checking for updates...",
           success: "Synced",
           error: "Error syncing",
@@ -167,7 +168,6 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
             width: "fit-content",
           },
         });
-        await sync();
       } else {
         setSyncState("synced");
       }
@@ -188,11 +188,12 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
     );
     setLastSynced(storedLastSynced);
 
-    const timer = setTimeout(() => {
-      checkSync();
-    }, 1000);
+    // const timer = setTimeout(() => {
 
-    return () => clearTimeout(timer);
+    //   checkSync();
+    // }, 1000);
+
+    // return () => clearTimeout(timer);
   }, [user?.clerkId]);
 
   useAutoSync(async () => {
