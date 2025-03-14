@@ -159,15 +159,15 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
 
       if (needsSync || lastSynced === null) {
         const promise = sync();
-        toast.promise(promise, {
-          loading: "Checking for updates...",
-          success: "Synced",
-          error: "Error syncing",
-          style: {
-            height: "25px",
-            width: "fit-content",
-          },
-        });
+        // toast.promise(promise, {
+        //   loading: "Checking for updates...",
+        //   success: "Synced",
+        //   error: "Error syncing",
+        //   style: {
+        //     height: "25px",
+        //     width: "fit-content",
+        //   },
+        // });
       } else {
         setSyncState("synced");
       }
@@ -188,12 +188,11 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
     );
     setLastSynced(storedLastSynced);
 
-    // const timer = setTimeout(() => {
+    const timer = setTimeout(() => {
+      checkSync();
+    }, 1000);
 
-    //   checkSync();
-    // }, 1000);
-
-    // return () => clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, [user?.clerkId]);
 
   useAutoSync(async () => {

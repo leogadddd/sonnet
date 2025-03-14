@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import { Toolbar } from "@/components/toolbar";
 import { Cover } from "@/components/cover";
 import dynamic from "next/dynamic";
 
 import Blog from "@/lib/dexie/blog";
 import { createClient } from "@/lib/supabase/client";
+import BlogInformation from "@/app/(public)/components/blog-information";
 
 const BlogsPageViewer = () => {
   const router = useRouter();
@@ -34,9 +35,9 @@ const BlogsPageViewer = () => {
       if (error) {
         console.error(error);
         return;
-      } else {
-        setBlog(data[0]);
       }
+
+      setBlog(data[0]);
     };
 
     fetchBlogs();
@@ -57,11 +58,13 @@ const BlogsPageViewer = () => {
 
   return (
     <div className="">
-      {blog && <Cover preview={true} initialData={blog} />}
+      {blog && <Cover preview={true} initialData={blog} isViewer />}
       <div className="mx-auto max-w-md lg:max-w-6xl md:max-w-4xl md:px-24">
         {blog && <Toolbar initialData={blog} preview={true} />}
+        {blog && <BlogInformation initialData={blog} />}
         <Editor
           editable={false}
+          isViewer
           onChange={() => {}}
           initialContent={blog?.content ?? ""}
         />

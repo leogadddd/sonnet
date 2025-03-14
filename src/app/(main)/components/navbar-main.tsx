@@ -12,6 +12,10 @@ import { usePublish } from "@/hooks/use-publish";
 import { useDexie } from "@/app/components/providers/dexie-provider";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEditor } from "@/hooks/use-editor";
+import { Button } from "@/app/components/ui/button";
+import Link from "next/link";
+import { useOrigin } from "@/hooks/use-origin";
+import { TimeFormatter } from "@/lib/utils";
 
 interface NavbarProps {
   isCollapsed: boolean;
@@ -32,8 +36,8 @@ NavbarSkeleton.displayName = "NavbarSkeleton";
 
 export const Navbar = React.memo(
   ({ isCollapsed, collapse, onResetWidth }: NavbarProps) => {
-    const { saveStatus, characterCount } = useEditor();
     const params = useParams();
+    const origin = useOrigin();
     const blogId = params.blogId as string;
 
     const { actions, db } = useDexie();
@@ -144,22 +148,9 @@ export const Navbar = React.memo(
             </div>
             <div className="flex items-center gap-x-2">
               <div>
-                {/* {saveStatus === "unsaved" && (
-                  <Badge
-                    variant={"outline"}
-                    className="text-xs text-muted-foreground group/lock-badge hover:text-primary hover:border-primary/25"
-                  >
-                    Unsaved
-                  </Badge>
-                )}
-                {saveStatus === "saved" && (
-                  <Badge
-                    variant={"outline"}
-                    className="text-xs text-muted-foreground group/lock-badge hover:text-primary hover:border-primary/25"
-                  >
-                    Saved
-                  </Badge>
-                )} */}
+                <p className="text-xs text-muted-foreground/50">
+                  synced {TimeFormatter.timeAgo(blog.synced_at)}
+                </p>
               </div>
               <Menu initialData={blog} />
             </div>
