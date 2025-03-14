@@ -105,7 +105,10 @@ const Menu = ({ initialData }: MenuProps) => {
         </div>
         <div
           className="cursor-pointer rounded-lg flex items-center gap-x-2 w-full p-1 px-2 hover:bg-muted"
-          onClick={publish.onOpen}
+          onClick={() => {
+            publish.onOpen();
+            menu.onClose();
+          }}
         >
           <Share className="h-4 w-4 mr-2 " />
           Share

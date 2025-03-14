@@ -33,6 +33,7 @@ import Workspace from "@/components/workspace";
 import { useDexie } from "@/components/providers/dexie-provider";
 import useUser from "@/hooks/use-user";
 import SyncButton from "@/app/components/syncbutton";
+import { useLiveQuery } from "dexie-react-hooks";
 
 export const Navigation = () => {
   const router = useRouter();
@@ -41,6 +42,7 @@ export const Navigation = () => {
   const params = useParams();
   const pathname = usePathname();
   const { user } = useUser();
+  const { db } = useDexie();
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   const { actions } = useDexie();
@@ -65,6 +67,13 @@ export const Navigation = () => {
       collapse();
     }
   }, [pathname, isMobile]);
+
+  const archivedBlogs = useLiveQuery(async () => {
+    return await db.blogs
+      .where(["is_archived", "deleted_at"])
+      .equals([1, 0])
+      .toArray();
+  });
 
   const handleMouseDown = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -190,29 +199,37 @@ export const Navigation = () => {
             />
             <div className="h-2" />
             <Item
+              label="Home"
+              icon={Home}
+              onClick={() => {
+                router.push("/dashboard");
+              }}
+            />
+            <Item
               label="Search"
               icon={Search}
               isSearch
               onClick={search.onOpen}
             />
-            <Item
-              label="Settings"
-              icon={Settings}
-              isSettings
-              onClick={settings.onOpen}
-            />
           </div>
           <div className="h-2" />
           <Item
-            label="Home"
-            icon={Home}
-            onClick={() => {
-              router.push("/dashboard");
-            }}
+            label="Settings"
+            icon={Settings}
+            isSettings
+            onClick={settings.onOpen}
           />
           <Popover>
             <PopoverTrigger className="w-full">
-              <Item label="Trash" icon={Trash} />
+              <Item
+                label="Trash"
+                icon={Trash}
+                subLabel={
+                  archivedBlogs?.length
+                    ? `(${archivedBlogs?.length.toString()})`
+                    : undefined
+                }
+              />
             </PopoverTrigger>
             <PopoverContent
               className="p-0 w-72 ml-2 bg-background dark:bg-[#181717] drop-shadow-md rounded-xl"

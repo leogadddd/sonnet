@@ -124,8 +124,7 @@ export const PublishModal = () => {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader className="border-b pb-3">
-          <DialogTitle className="text-lg font-medium">Share</DialogTitle>
-          <DialogDescription>Share your blog with others.</DialogDescription>
+          <DialogTitle className="text-lg font-medium">Publish</DialogTitle>
         </DialogHeader>
         <div className="flex items-center justify-between">
           <div className="flex justify-between items-center w-full">

@@ -73,8 +73,7 @@ export const Navbar = () => {
         {isAuthenticated && !isLoading && (
           <Button size={"sm"} className="rounded-lg" asChild>
             <Link href="/dashboard">
-              <Pen className="w-4 h-4" />
-              <span className="hidden md:block">Start Writing</span>
+              <span className="hidden md:block">Dashboard</span>
             </Link>
           </Button>
         )}

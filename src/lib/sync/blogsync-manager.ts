@@ -128,6 +128,11 @@ class BlogSyncManager {
     }
 
     const { error } = await this.supabase.from("blogs").upsert(blog);
+
+    await this.db.blogs.update(blog.blog_id, {
+      synced_at: Date.now(),
+    });
+
     if (error) {
       console.error(
         `[Sync] Error saving blog '${blog.blog_id}' to cloud:`,
@@ -148,6 +153,8 @@ class BlogSyncManager {
     blog.is_preview = blog.is_preview ? 1 : 0;
     blog.is_on_explore = blog.is_on_explore ? 1 : 0;
     blog.is_published = blog.is_published ? 1 : 0;
+
+    blog.synced_at = Date.now();
 
     try {
       await this.db.blogs.put(blog);
@@ -192,6 +199,10 @@ class BlogSyncManager {
     if (!localBlog) {
       return;
     }
+
+    await this.db.blogs.update(blogId, {
+      synced_at: Date.now(),
+    });
 
     if (localBlog.deleted_at > 0) {
       console.warn(`[Sync] Blog '${blogId}' is marked for deletion, skipping.`);

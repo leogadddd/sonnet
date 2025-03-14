@@ -64,7 +64,7 @@ blog.create = async (blog: BlogCreate) => {
         created_at: Date.now(),
         updated_at: Date.now(),
         deleted_at: 0,
-        synced_at: 0,
+        synced_at: Date.now(),
       };
 
       await db.blogs.add(formattedBlog);

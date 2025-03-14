@@ -41,12 +41,14 @@ const extensions = [...defaultExtensions, slashCommand];
 
 interface EditorV2Props {
   editable?: boolean;
+  isViewer?: boolean;
   initialContent: string;
   onChange: (content: string) => void;
 }
 
 const TailwindAdvancedEditor = ({
   editable = true,
+  isViewer = false,
   initialContent,
   onChange,
 }: EditorV2Props) => {
@@ -88,7 +90,12 @@ const TailwindAdvancedEditor = ({
   }, [editor]);
 
   return (
-    <div className="relative w-full max-w-screen-lg min-w-fit">
+    <div
+      className={cn(
+        "relative w-full max-w-screen-lg min-w-fit ",
+        !editable && isViewer && "px-14"
+      )}
+    >
       <EditorRoot>
         <EditorContent
           initialContent={content ?? undefined}

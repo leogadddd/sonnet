@@ -41,8 +41,8 @@ const BlogList = () => {
 
   if (!blogs.length) {
     return (
-      <div className="flex flex-col gap-y-4 w-full text-center">
-        No blogs found
+      <div className="flex flex-col gap-y-4 w-full items-center h-24 justify-center text-muted-foreground/50">
+        Empty Blogs
       </div>
     );
   }

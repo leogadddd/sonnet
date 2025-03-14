@@ -14,10 +14,15 @@ import Blog from "@/lib/dexie/blog";
 
 interface CoverImageProps {
   preview?: boolean;
+  isViewer?: boolean;
   initialData: Blog;
 }
 
-export const Cover = ({ preview, initialData }: CoverImageProps) => {
+export const Cover = ({
+  preview,
+  isViewer = false,
+  initialData,
+}: CoverImageProps) => {
   const { actions } = useDexie();
   const coverImage = useCoverImage();
 
@@ -31,7 +36,7 @@ export const Cover = ({ preview, initialData }: CoverImageProps) => {
         "relative w-full h-[23vh] group mt-11",
         !initialData?.cover_image && "h-[5vh]",
         initialData?.cover_image && "bg-muted",
-        preview && "mt-0",
+        preview && isViewer && "mt-0",
         initialData?.is_archived === 1 && "mt-[5.85rem]"
       )}
     >
